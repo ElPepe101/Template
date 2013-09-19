@@ -1,6 +1,6 @@
 <?php
 
-$URL = 'http://localhost/urbanatlon2013';
+$URL = 'http://localhost/TEMPLATE';
 $SRVRROOT = NULL; 							// Optional fallback If __DIR__ == NULL
 $TEMPLATE = NULL; 							// Optional; Default is default 
 $TIMEZONE = 'Mexico/General';

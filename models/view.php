@@ -67,6 +67,6 @@ class View_Model {
 			return ob_get_clean();
 		}
 	}
-
+	
 	public function __destruct() {}
 } 

@@ -84,7 +84,7 @@ if (file_exists($target)) {
 
 	//instantiate the appropriate class
 	if (class_exists($class)) {
-		$controller = new $class;
+		$controller = new $class($page);
 	} else {
 		//did we name our class correctly?
 		die('class does not exist!');

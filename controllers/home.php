@@ -5,19 +5,6 @@
  */
 class Home_Controller extends Template_Controller {
 
-
-	/**
-	 * This template variable will hold the 'view' portion of our MVC for this 
-	 * controller
-	 */
-	public $template = 'home';	
-
-	function __construct() {
-		$this->_init();
-		$this->_template .= $this->template;
-		$this->model = new Home_Model;
-	}
-
 	/**
 	 * This is the default function that will be called by router.php
 	 * 
@@ -25,14 +12,26 @@ class Home_Controller extends Template_Controller {
 	 */
 	public function main(array $getVars) {
 		
-		//get an article
-		$article = $this->model->get_article($getVars['author']);
-		
-		$home = new View_Model($this->_template);
-		$home->assign('title' , $article->title);
+		$home = new View_Model($this->template);
+		$home->assign('title' , 'algo');
 		
 		$this->view->assign('content' , $home->render(FALSE));
+		
+		$this->algo = 'asdasdafsav29019hr0';
+
+		if($this->algo->is_string()){
+			echo 'is string: '. $this->algo->value().'<br />';
+		}
+
+		if($this->algo->to_sha1()){
+			echo 'is sha: '.$this->algo->to_sha1().'<br />';
+		}
+
+		echo $this->algo->strpos('sdas').'<br />';
+		
 		$this->view->render();
+		
+		
 		
 	}
 }
