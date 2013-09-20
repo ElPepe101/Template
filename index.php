@@ -20,7 +20,7 @@ $hour = date('Y-m-d-H', strtotime('-2 hours'));
  * Define document paths
  */
 define('TEMPLATE' , $TEMPLATE ? $TEMPLATE : 'default');
-define('SRVRROOT' , $SRVRROOT ? $SRVRROOT : __DIR__);
+define('SRVRROOT' , $SRVRROOT ? $SRVRROOT : __DIR__);//dirname(__FILE__)
 define('SITEROOT' , $URL);
 
 /**
