@@ -8,11 +8,12 @@
 function __autoload($className) {
 	// Parse out filename where class should be located
 	// This supports names like 'Example_Model' as well as 'Example_Two_Model'
-	list($suffix, $filename) = preg_split('/_/', strrev($className), 2);
+	$cleanClassName = preg_replace('/\s|\x2d/', '_', $className);
+	list($suffix, $filename) = preg_split('/_/', strrev($cleanClassName), 2);
 	$filename = strrev($filename);
 	$suffix = strrev($suffix);
 
-	//echo strtolower($suffix). ': '. $filename. '<br />';
+	echo strtolower($suffix). ': '. $filename. '<br />';
 
 	//select the folder where class should be located based on suffix
 	switch (strtolower($suffix)) {
@@ -43,7 +44,7 @@ function __autoload($className) {
 		include_once($file);
 	} else {
 		//file does not exist!
-		die("File '$filename' containing class '$className' not found in
+		die("File '$filename' containing class '$cleanClassName' not found in
 '$folder'.");
 	}
 }
@@ -57,7 +58,7 @@ $parsed = explode('&' , $request);
 //the page is the first element
 $page = array_shift($parsed);
 
-$page = $page == ''? 'home': $page;
+$page = $page == ''? 'home': preg_replace('/\s|\x2d/', '_', $page);
 
 //the rest of the array are get statements, parse them out.
 $getVars = array();
