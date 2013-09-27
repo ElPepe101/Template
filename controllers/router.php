@@ -13,7 +13,7 @@ function __autoload($className) {
 	$filename = strrev($filename);
 	$suffix = strrev($suffix);
 
-	echo strtolower($suffix). ': '. $filename. '<br />';
+	//strtolower($suffix). ': '. $filename. '<br />';
 
 	//select the folder where class should be located based on suffix
 	switch (strtolower($suffix)) {
@@ -53,7 +53,7 @@ function __autoload($className) {
 $request = $_SERVER['QUERY_STRING'];
 
 //parse the page request and other GET variables
-$parsed = explode('&' , $request);
+$parsed = explode('/' , $request);
 
 //the page is the first element
 $page = array_shift($parsed);
