@@ -9,23 +9,21 @@ class Template_Controller {
 	 * This template variable will hold the 'view' portion of our MVC for this 
 	 * controller
 	 */
-	protected $template = 'modules/';
+	 
+	protected $sections = 'sections/';
+	 
+	protected $template;
 
 	protected $view;
 	
 	protected $model;
 
-	private $_template;
-	
-	private $_Registry;
+	protected $_template;
 
 	function __construct($template = null) {
-	
-		$_Registry = new stdClass();
-	
 		if(is_string($template)){
 			$this->_template = $template;
-			$this->template .= $this->_template;
+			$this->template = $this->sections.$this->_template;
 		}
 		$this->_init();
 		//$this->model = new Home_Model;
@@ -37,11 +35,11 @@ class Template_Controller {
 	 * @param array $getVars the GET variables posted to index.php
 	 */
 	protected function _init() {
-		$header = new View_Model('sections/header');
+		$header = new View_Model('modules/header');
 		$header->assign('mainurl' , SITEROOT);
 		$header->assign('templateurl' , SITEROOT.'/views/'.TEMPLATE);
 		
-		$footer = new View_Model('sections/footer');
+		$footer = new View_Model('modules/footer');
 		$footer->assign('mainurl' , SITEROOT);
 		$footer->assign('templateurl' , SITEROOT.'/views/'.TEMPLATE);
 		
@@ -55,12 +53,4 @@ class Template_Controller {
 		
 	}
 	
-	public function __get($varName) {
-		return $this->_Registry->$varName;
-	}
-	
-	public function __set($varName, $value) {
-		$$varName = new ObjectApply_Library($value);
-		$this->_Registry->$varName = $$varName;
-	}
 }
