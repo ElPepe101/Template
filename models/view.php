@@ -20,6 +20,8 @@ class View_Model {
 	public function __construct($template) {
 		//compose file name
 		$file = SRVRROOT . '/views/'. TEMPLATE . '/' . strtolower($template) . '.php';
+		
+		//echo $file.'<br />';
 
 		$this->data = new stdClass();
 
