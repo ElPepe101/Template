@@ -10,7 +10,7 @@ class Template_Controller {
 	 * controller
 	 */
 	 
-	protected $sections = 'sections/';
+	protected $modules = MODULES;
 	 
 	protected $template;
 
@@ -23,7 +23,7 @@ class Template_Controller {
 	function __construct($template = null) {
 		if(is_string($template)){
 			$this->_template = $template;
-			$this->template = $this->sections.$this->_template;
+			$this->template = $this->modules.'/'.$this->_template;
 		}
 		$this->_init();
 		//$this->model = new Home_Model;
@@ -35,11 +35,11 @@ class Template_Controller {
 	 * @param array $getVars the GET variables posted to index.php
 	 */
 	protected function _init() {
-		$header = new View_Model('modules/header');
+		$header = new View_Model(SECTIONS.'/header');
 		$header->assign('mainurl' , SITEROOT);
 		$header->assign('templateurl' , SITEROOT.'/views/'.TEMPLATE);
 		
-		$footer = new View_Model('modules/footer');
+		$footer = new View_Model(SECTIONS.'/footer');
 		$footer->assign('mainurl' , SITEROOT);
 		$footer->assign('templateurl' , SITEROOT.'/views/'.TEMPLATE);
 		
