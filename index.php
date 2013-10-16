@@ -19,9 +19,12 @@ $hour = date('Y-m-d-H', strtotime('-2 hours'));
 /**
  * Define document paths
  */
+if ( !defined('__DIR__') ) define('__DIR__', dirname(__FILE__));
 define('TEMPLATE' , $TEMPLATE ? $TEMPLATE : 'default');
-define('SRVRROOT' , $SRVRROOT ? $SRVRROOT : __DIR__);//dirname(__FILE__)
+define('SRVRROOT' , $SRVRROOT ? $SRVRROOT : __DIR__);
 define('SITEROOT' , $URL);
+define('MODULES', 'modules');
+define('SECTIONS', 'sections');
 
 /**
  * Fetch the router
