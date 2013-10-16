@@ -17,6 +17,8 @@ class Template_Controller {
 	protected $view;
 	
 	protected $model;
+	
+	private $_Registry;
 
 	protected $_template;
 
@@ -53,4 +55,13 @@ class Template_Controller {
 		
 	}
 	
+	public function __get($varName) {
+		return $this->_Registry->$varName;
+	}
+
+	public function __set($varName, $value) {
+		$$varName = new ObjectApply_Library($value);
+		$this->_Registry->$varName = $$varName;
+	}
+
 }
