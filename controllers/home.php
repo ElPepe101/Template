@@ -18,8 +18,8 @@ class Home_Controller extends Template_Controller {
 		$this->view->assign('content' , $home->render(FALSE));
 
 		$this->algo = 'algodón';
-		
-		/*
+
+		//*
 		echo '<br />1 algo: '.$this->algo->value();
 		echo '<br />2 is_string: '.$this->algo->is_string()->value();
 		echo '<br />3 is_string: '.$this->algo->is_string()->value();
