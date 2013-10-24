@@ -62,7 +62,11 @@ class View_Model {
 		$data = $this->data;
 
 		// Get template
-		include($this->render);
+		if(file_exists($this->render)){
+			include($this->render);	
+		} else {
+			echo '404';
+		}
 
 		// Get the contents of the buffer and return it
 		if ($direct_output !== TRUE) {
