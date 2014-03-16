@@ -29,6 +29,8 @@ class Template_Controller {
 		}
 		$this->_init();
 		//$this->model = new Home_Model;
+		
+		$this->_Registry = new StdClass();
 	}
 
 	/**
@@ -50,6 +52,7 @@ class Template_Controller {
 		$this->view->assign('templateurl' , SITEROOT.'/views/'.TEMPLATE);
 		$this->view->assign('templatename', $this->_template);
 		
+		$this->view->assign('title' , TEMPLATE);
 		$this->view->assign('header', $header->render(FALSE));
 		$this->view->assign('footer', $footer->render(FALSE));
 		
@@ -60,8 +63,9 @@ class Template_Controller {
 	}
 
 	public function __set($varName, $value) {
-		$$varName = new ObjectApply_Library($value);
-		$this->_Registry->$varName = $$varName;
+		//$$varName = new ObjectApply_Library($value);
+		//$this->_Registry->$varName = $$varName;
+		$this->_Registry->$varName = new ObjectApply_Library($value);
 	}
 
 }
