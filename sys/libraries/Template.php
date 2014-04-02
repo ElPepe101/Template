@@ -3,7 +3,7 @@
 /**
  * This file handles the retrieval and serving of news articles
  */
-class Template_Controller {
+class Template_Library {
 
 	/**
 	 * This template variable will hold the 'view' portion of our MVC for this 
@@ -39,15 +39,15 @@ class Template_Controller {
 	 * @param array $getVars the GET variables posted to index.php
 	 */
 	protected function _init() {
-		$header = new View_Model(SECTIONS.'/header');
+		$header = new View_Library(SECTIONS.'/header');
 		$header->assign('mainurl' , SITEROOT);
 		$header->assign('templateurl' , SITEROOT.'/views/'.TEMPLATE);
 		
-		$footer = new View_Model(SECTIONS.'/footer');
+		$footer = new View_Library(SECTIONS.'/footer');
 		$footer->assign('mainurl' , SITEROOT);
 		$footer->assign('templateurl' , SITEROOT.'/views/'.TEMPLATE);
 		
-		$this->view = new View_Model('master');
+		$this->view = new View_Library('master');
 		$this->view->assign('mainurl', SITEROOT);
 		$this->view->assign('templateurl' , SITEROOT.'/views/'.TEMPLATE);
 		$this->view->assign('templatename', $this->_template);
@@ -63,8 +63,6 @@ class Template_Controller {
 	}
 
 	public function __set($varName, $value) {
-		//$$varName = new ObjectApply_Library($value);
-		//$this->_Registry->$varName = $$varName;
 		$this->_Registry->$varName = new ObjectApply_Library($value);
 	}
 

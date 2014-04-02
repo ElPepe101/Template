@@ -18,25 +18,25 @@ function __autoload($className) {
 	//select the folder where class should be located based on suffix
 	switch (strtolower($suffix)) {
 	case 'model':
-		$folder = '/models/';
+		$folder = '/app/models/';
 		break;
 
 	case 'library':
-		$folder = '/libraries/';
+		$folder = '/sys/libraries/';
 		break;
 
 	case 'driver':
-		$folder = '/libraries/drivers/';
+		$folder = '/sys/libraries/drivers/';
 		break;
 		
 	case 'controller':
-		$folder = '/controllers/';
+		$folder = '/app/controllers/';
 		break;
 	}
 
 	//compose file name
 	$file = SRVRROOT . $folder . strtolower($filename) . '.php';
-	// echo $file.'<br />';
+	 echo 'Line 39: '.$file.'<br />';
 
 	//fetch file
 	if (file_exists($file)) {
@@ -74,7 +74,8 @@ foreach ($parsed as $argument) {
 }
 
 //compute the path to the file
-$target = SRVRROOT . '/controllers/' . $page . '.php';
+$target = SRVRROOT . '/app/controllers/' . $page . '.php';
+echo 'Line 78: '.$target.'<br />';
 
 //get target
 if (file_exists($target)) {

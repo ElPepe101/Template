@@ -6,7 +6,8 @@ $TEMPLATE = NULL; 							// Optional; Default is default
 $TIMEZONE = 'Mexico/General';
 
 ini_set('error_reporting', E_ALL);
-ini_set('log_errors', 1);
+ini_set('display_errors', 1);
+//ini_set('log_errors', 1);
 
 //testing
 
@@ -29,6 +30,6 @@ define('SECTIONS', 'sections');
 /**
  * Fetch the router
  */
-require_once(SRVRROOT . '/controllers/' . 'router.php');
+require_once(SRVRROOT . '/sys/' . 'router.php');
 
 //echo SRVRROOT;

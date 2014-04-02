@@ -3,7 +3,7 @@
 /**
  * This file handles the retrieval and serving of news articles
  */
-class Home_Controller extends Template_Controller {
+class Home_Controller extends Template_Library {
 
 	/**
 	 * This is the default function that will be called by router.php
@@ -12,7 +12,7 @@ class Home_Controller extends Template_Controller {
 	 */
 	public function main(array $getVars) {
 
-		$home = new View_Model($this->template);
+		$home = new View_Library($this->template);
 		$home->assign('title' , 'algo');
 
 		$this->view->assign('content' , $home->render(FALSE));

@@ -3,7 +3,7 @@
 /**
  * Handles the view functionality of our MVC framework
  */
-class View_Model {
+class View_Library {
 	/**
 	 * Holds variables assigned to template
 	 */
