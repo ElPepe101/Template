@@ -12,14 +12,13 @@ class Home_Controller extends Template_Library {
 	 */
 	public function main(array $getVars) {
 
-		$home = new View_Library($this->template);
-		$home->assign('title' , 'algo');
-
-		$this->view->assign('content' , $home->render(FALSE));
+		//$home = new View_Library($this->template);
+		
+		//$this->view->assign('content' , $home->render(FALSE));
 
 		$this->algo = 'algodón';
 
-		//*
+		/*
 		echo '<br />1 algo: '.$this->algo->value();
 		echo '<br />2 is_string: '.$this->algo->is_string()->value();
 		echo '<br />3 is_string: '.$this->algo->is_string()->value();
@@ -53,6 +52,8 @@ class Home_Controller extends Template_Library {
 		echo 'strpos: '.$this->algo->sha1()->strpos('afbf5941')->value().'<br />';
 		//*/
 		
+		$this->view->assign('title' , 'algo');
+		//$this->view->assign('content' , $home->render(FALSE));
 		$this->view->render();
 
 	}

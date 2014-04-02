@@ -36,7 +36,7 @@ function __autoload($className) {
 
 	//compose file name
 	$file = SRVRROOT . $folder . strtolower($filename) . '.php';
-	 echo 'Line 39: '.$file.'<br />';
+	// echo 'Line 39: '.$file.'<br />';
 
 	//fetch file
 	if (file_exists($file)) {
@@ -75,7 +75,7 @@ foreach ($parsed as $argument) {
 
 //compute the path to the file
 $target = SRVRROOT . '/app/controllers/' . $page . '.php';
-echo 'Line 78: '.$target.'<br />';
+//echo 'Line 78: '.$target.'<br />';
 
 //get target
 if (file_exists($target)) {

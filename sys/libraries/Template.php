@@ -21,7 +21,7 @@ class Template_Library {
 	private $_Registry;
 
 	protected $_template;
-
+	
 	function __construct($template = null) {
 		if(is_string($template)){
 			$this->_template = $template;
@@ -29,6 +29,10 @@ class Template_Library {
 		}
 		$this->_init();
 		//$this->model = new Home_Model;
+		
+		//Get class name from extended class
+		//$instance_name = strtolower(preg_replace('(\_\w*)', '', get_class($this)));
+		//$$instance_name = new View_Library($this->template);
 		
 		$this->_Registry = new StdClass();
 	}
@@ -38,31 +42,51 @@ class Template_Library {
 	 * 
 	 * @param array $getVars the GET variables posted to index.php
 	 */
-	protected function _init() {
-		$header = new View_Library(SECTIONS.'/header');
-		$header->assign('mainurl' , SITEROOT);
-		$header->assign('templateurl' , SITEROOT.'/views/'.TEMPLATE);
-		
-		$footer = new View_Library(SECTIONS.'/footer');
-		$footer->assign('mainurl' , SITEROOT);
-		$footer->assign('templateurl' , SITEROOT.'/views/'.TEMPLATE);
+	protected function _init($normal_template = true) {
 		
 		$this->view = new View_Library('master');
-		$this->view->assign('mainurl', SITEROOT);
-		$this->view->assign('templateurl' , SITEROOT.'/views/'.TEMPLATE);
+		$this->setGeneralSectionVars($this->view);
 		$this->view->assign('templatename', $this->_template);
 		
-		$this->view->assign('title' , TEMPLATE);
-		$this->view->assign('header', $header->render(FALSE));
-		$this->view->assign('footer', $footer->render(FALSE));
+		if($normal_template) {
 		
+			$header = $this->getSection('header');
+			$this->view->assign('header', $header->render(FALSE));
+		
+			$footer = $this->getSection('footer');
+			$this->view->assign('footer', $footer->render(FALSE));
+		}
+		
+		$content = new View_Library($this->template);
+		$this->view->assign('content', $content->render(FALSE));
+		
+		
+		$this->view->assign('title' , TEMPLATE);	
+	}
+	
+	protected function setGeneralSectionVars($new_section) {
+	
+		$new_section->assign('mainurl' , SITEROOT);
+		$new_section->assign('templateurl' , SITEROOT.'/views/'.TEMPLATE);
+	}
+	
+	public function getSection($section, $is_general_section = true) {
+	
+		$new_section = new View_Library(SECTIONS.'/'.$section);
+		if($is_general_section) {
+			$this->setGeneralSectionVars($new_section);
+		}
+		
+		return $new_section;
 	}
 	
 	public function __get($varName) {
+	
 		return $this->_Registry->$varName;
 	}
 
 	public function __set($varName, $value) {
+	
 		$this->_Registry->$varName = new ObjectApply_Library($value);
 	}
 

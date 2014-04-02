@@ -18,8 +18,9 @@ class View_Library {
 	 * Accept a template to load
 	 */
 	public function __construct($template) {
+	
 		//compose file name
-		$file = SRVRROOT . '/views/'. TEMPLATE . '/' . strtolower($template) . '.php';
+		$file = SRVRROOT . '/app/views/'. TEMPLATE . '/' . strtolower($template) . '.php';
 		
 		//echo $file.'<br />';
 
@@ -42,6 +43,7 @@ class View_Library {
 	 * @param $value
 	 */
 	public function assign($variable , $value) {
+	
 		$this->data->{$variable} = $value;
 	}
 
@@ -53,6 +55,7 @@ class View_Library {
 	 * output returned rather than displayed directly.
 	 */
 	public function render($direct_output = TRUE) {
+
 		// Turn output buffering on, capturing all output
 		if ($direct_output !== TRUE) {
 			ob_start();
