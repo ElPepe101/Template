@@ -52,9 +52,8 @@ class Home_Controller extends Template_Library {
 		echo 'strpos: '.$this->algo->sha1()->strpos('afbf5941')->value().'<br />';
 		//*/
 		
-		$this->view->assign('title' , 'algo');
-		//$this->view->assign('content' , $home->render(FALSE));
-		$this->view->render();
+		$this->module->assign('title:global', 'algo');
+		$this->renderModule();
 
 	}
 }

@@ -5,36 +5,40 @@
  */
 class Template_Library {
 
+	private $modules = MODULES;
+	 
 	/**
 	 * This template variable will hold the 'view' portion of our MVC for this 
 	 * controller
-	 */
-	 
-	protected $modules = MODULES;
-	 
-	protected $template;
-
-	protected $view;
-	
-	protected $model;
+	 * 
+	 * April 3, 2014: there's no need to let the master view running wild over the fences,
+	 * has better chances with the module container.
+	 */	
+	private $view;
 	
 	private $_Registry;
 
-	protected $_template;
+	private $_template;
+	
+	protected $template;
+	
+	/**
+	 * Now, there you are little fella.
+	 * This one is the important.
+	 * It holds the master view instance with all the other properties.
+	 */
+	public $module;
 	
 	function __construct($template = null) {
+	
 		if(is_string($template)){
-			$this->_template = $template;
-			$this->template = $this->modules.'/'.$this->_template;
-		}
-		$this->_init();
-		//$this->model = new Home_Model;
 		
-		//Get class name from extended class
-		//$instance_name = strtolower(preg_replace('(\_\w*)', '', get_class($this)));
-		//$$instance_name = new View_Library($this->template);
+			$this->_template = $template;
+		}
 		
 		$this->_Registry = new StdClass();
+		$this->module = new StdClass();
+		$this->_init();
 	}
 
 	/**
@@ -45,46 +49,99 @@ class Template_Library {
 	protected function _init($normal_template = true) {
 		
 		$this->view = new View_Library('master');
-		$this->setGeneralSectionVars($this->view);
-		$this->view->assign('templatename', $this->_template);
+		$this->setGlobalVars($this->view);
 		
 		if($normal_template) {
 		
-			$header = $this->getSection('header');
-			$this->view->assign('header', $header->render(FALSE));
-		
-			$footer = $this->getSection('footer');
-			$this->view->assign('footer', $footer->render(FALSE));
+			$header = $this->setSection('header', true);
+			$footer = $this->setSection('footer', true);
 		}
 		
-		$content = new View_Library($this->template);
-		$this->view->assign('content', $content->render(FALSE));
-		
-		
-		$this->view->assign('title' , TEMPLATE);	
+		$this->setModule($this->_template, true);
 	}
 	
-	protected function setGeneralSectionVars($new_section) {
+	/**
+	 * List of global data
+	 *
+	 * @param Object|View $section
+	 */
+	protected function setGlobalVars($section) {
 	
-		$new_section->assign('mainurl' , SITEROOT);
-		$new_section->assign('templateurl' , SITEROOT.'/views/'.TEMPLATE);
+		$section->assign('mainurl:global' , SITEROOT);
+		$section->assign('templateurl:global' , SITEROOT.'/app/views/'.TEMPLATE);
+		$section->assign('templatename:global', $this->_template);
+		$section->assign('title:global' , TEMPLATE);
 	}
 	
-	public function getSection($section, $is_general_section = true) {
+	/**
+	 * Create a section in the View instance
+	 *
+	 * @param String $section Name of the section
+	 * @param Bool $inherit Inherit global vars from master view. Default: false
+	 */
+	public function setSection($section, $inherit = false) {
 	
 		$new_section = new View_Library(SECTIONS.'/'.$section);
-		if($is_general_section) {
-			$this->setGeneralSectionVars($new_section);
+		
+		if($inherit){
+			$new_section->inherit($this->view);
 		}
+		
+		$this->view->assign($section.':section', $new_section->render(FALSE));
 		
 		return $new_section;
 	}
 	
+	/**
+	 * 
+	 */
+	public function setModule($module, $inherit = false) {
+
+		$this->template = $this->modules.'/'.$this->_template;
+		$new_module = new View_Library($this->template);
+
+		if($inherit){
+			$new_module->inherit($this->view);
+		}
+		
+		// Don't assign to 'content' section
+		// wait for it...
+		// ...
+		// Ok now, save it for the render.
+		$this->module = $new_module;
+	}
+	
+	/**
+	 * Renders module and template view
+	 *
+	 */
+	public function renderModule() {
+
+		$this->view->assign('content:module', $this->module->render(FALSE));
+		$this->view->render();
+	}
+	
+	/**
+	 * Obtain Controller created vars
+	 *
+	 */
 	public function __get($varName) {
 	
 		return $this->_Registry->$varName;
 	}
 
+	/**
+	 * This is where the magic happens:
+	 * 	the idea is to create a SOLID convention param 
+	 * 	with an instance of the ObjectApply Library,
+	 *  save it to the Controller registry and make use 
+	 * 	of singleton to generate a global-in-local history
+	 * 	for control of the qty of requests.
+	 *
+	 * 	All vars in Controller must use the same principle (Ruby style).
+	 *
+	 * @usage $this->new_var = 'some string';
+	 */
 	public function __set($varName, $value) {
 	
 		$this->_Registry->$varName = new ObjectApply_Library($value);
