@@ -1,9 +1,9 @@
 <?php
 
-/**
+/** 
  * This file handles the retrieval and serving of news articles
  */
-class Home_Controller extends Template_Library {
+class Home extends PPMFWK\Template {
 
 	/**
 	 * This is the default function that will be called by router.php
@@ -12,12 +12,29 @@ class Home_Controller extends Template_Library {
 	 */
 	public function main(array $getVars) {
 
-		//$home = new View_Library($this->template);
+		print_r($getVars);
+
+		session_start('user');
 		
-		//$this->view->assign('content' , $home->render(FALSE));
+		\Micro\Cookie::$settings = array(
+			'expires' => '',
+			'path' => '',
+			'domain' => '',
+			'secure' => '',
+			'httponly' => ''
+		);
+		
+		\Micro\Session::save('user');
+		\Micro\Session::start('user');
+		
+		print_r($_COOKIE);
+		print_r($_SESSION);
+		
+		@\Micro\Session::destroy('user');
+		
 
 		$this->algo = 'algodón';
-
+		
 		/*
 		echo '<br />1 algo: '.$this->algo->value();
 		echo '<br />2 is_string: '.$this->algo->is_string()->value();

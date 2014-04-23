@@ -1,11 +1,13 @@
 <?php
 
+namespace PPMFWK;
+
 /**
  * This file handles the retrieval and serving of news articles
  */
-class Template_Library {
+class Template {
 
-	private $modules = MODULES;
+	private $modules;
 	 
 	/**
 	 * This template variable will hold the 'view' portion of our MVC for this 
@@ -30,14 +32,16 @@ class Template_Library {
 	public $module;
 	
 	function __construct($template = null) {
-	
+
+		$this->modules = PPMFWK::$MODULES;
+
 		if(is_string($template)){
-		
+
 			$this->_template = $template;
 		}
-		
-		$this->_Registry = new StdClass();
-		$this->module = new StdClass();
+
+		$this->_Registry = new \StdClass();
+		$this->module = new \StdClass();
 		$this->_init();
 	}
 
@@ -48,7 +52,7 @@ class Template_Library {
 	 */
 	protected function _init($normal_template = true) {
 		
-		$this->view = new View_Library('master');
+		$this->view = new View('master');
 		$this->setGlobalVars($this->view);
 		
 		if($normal_template) {
@@ -67,10 +71,10 @@ class Template_Library {
 	 */
 	protected function setGlobalVars($section) {
 	
-		$section->assign('mainurl:global' , SITEROOT);
-		$section->assign('templateurl:global' , SITEROOT.'/app/views/'.TEMPLATE);
+		$section->assign('mainurl:global' , PPMFWK::$SITEROOT);
+		$section->assign('templateurl:global' , PPMFWK::$SITEROOT.'/app/views/'.PPMFWK::$TEMPLATE);
 		$section->assign('templatename:global', $this->_template);
-		$section->assign('title:global' , TEMPLATE);
+		$section->assign('title:global' , PPMFWK::$TEMPLATE);
 	}
 	
 	/**
@@ -81,7 +85,7 @@ class Template_Library {
 	 */
 	public function setSection($section, $inherit = false) {
 	
-		$new_section = new View_Library(SECTIONS.'/'.$section);
+		$new_section = new View(PPMFWK::$SECTIONS.'/'.$section);
 		
 		if($inherit){
 			$new_section->inherit($this->view);
@@ -98,7 +102,7 @@ class Template_Library {
 	public function setModule($module, $inherit = false) {
 
 		$this->template = $this->modules.'/'.$this->_template;
-		$new_module = new View_Library($this->template);
+		$new_module = new View($this->template);
 
 		if($inherit){
 			$new_module->inherit($this->view);
@@ -121,6 +125,12 @@ class Template_Library {
 		$this->view->render();
 	}
 	
+	
+// //////////////////////////////////////////////////	
+// //////////////////////////////////////////////////
+// THINK ILL BE BETTER TO USE TRAITS FROM THIS PART	ON
+
+
 	/**
 	 * Obtain Controller created vars
 	 *
@@ -131,6 +141,8 @@ class Template_Library {
 	}
 
 	/**
+	 * Multiple Chained Actions (Ruby style)
+	 *
 	 * This is where the magic happens:
 	 * 	the idea is to create a SOLID convention param 
 	 * 	with an instance of the ObjectApply Library,
@@ -138,13 +150,13 @@ class Template_Library {
 	 * 	of singleton to generate a global-in-local history
 	 * 	for control of the qty of requests.
 	 *
-	 * 	All vars in Controller must use the same principle (Ruby style).
+	 * 	All vars in Controller must use the same principle.
 	 *
 	 * @usage $this->new_var = 'some string';
 	 */
 	public function __set($varName, $value) {
 	
-		$this->_Registry->$varName = new ObjectApply_Library($value);
+		$this->_Registry->$varName = new libraries\ObjectApply($value);
 	}
 
 }

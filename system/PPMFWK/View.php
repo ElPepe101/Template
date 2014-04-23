@@ -1,9 +1,11 @@
 <?php
 
+namespace PPMFWK;
+
 /**
  * Handles the view functionality of our MVC framework
  */
-class View_Library {
+class View {
 
 	/**
 	 * Holds variables assigned to template
@@ -24,13 +26,13 @@ class View_Library {
 	public function __construct($template) {
 	
 		//compose file name
-		$file = SRVRROOT . '/app/views/'. TEMPLATE . '/' . strtolower($template) . '.php';
+		$file = PPMFWK::$SRVRROOT . '/app/views/'. PPMFWK::$TEMPLATE . '/' . strtolower($template) . '.php';
 		//echo $file.'<br />';
 		
 		// for debbug
 		$this->template = $template;
 
-		$this->data = new stdClass();
+		$this->data = new \stdClass();
 
 		if (file_exists($file)) {
 			/*
@@ -90,7 +92,7 @@ class View_Library {
 	 */
 	private function cleanObjProperty($data) {
 		
-		$clean_data = new stdClass();
+		$clean_data = new \stdClass();
 		
 		foreach($data as $k => $d) {
 			

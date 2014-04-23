@@ -1,5 +1,7 @@
 <?php 
 
+namespace PPMFWK\libraries;
+
 /**
  * ObjectApply
  * 
@@ -8,7 +10,7 @@
  * @subpackage Library
  * @author     ElPepe Segoviano <aunsoyjoven {at} hotmail.com>
  */
-class ObjectApply_Library {
+class ObjectApply {
 	
 	private $_value;
 	
