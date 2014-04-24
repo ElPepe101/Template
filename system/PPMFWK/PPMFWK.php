@@ -28,7 +28,9 @@ class PPMFWK {
 
 	public static $DEBUG = true;
 	
-	public function __construct() {
+	public static $micro_config = array();
+	
+	public static function start() {
 	
 		if(self::$DEBUG){
 			ini_set('error_reporting', E_ALL);
@@ -42,6 +44,7 @@ class PPMFWK {
 		self::$HOUR = date('Y-m-d-H', strtotime('-2 hours'));
 		
 		//echo 'construct called';
+		self::router($_SERVER['QUERY_STRING']);
 	}
 
 	/**
@@ -83,7 +86,7 @@ class PPMFWK {
     }
     
     //fetch the passed request
-    public function router($request) {
+    public static function router($request) {
     
 		// parse the page request and other GET variables
 		$parsed = explode('/' , $request);

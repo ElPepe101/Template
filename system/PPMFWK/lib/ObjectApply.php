@@ -1,6 +1,6 @@
 <?php 
 
-namespace PPMFWK\libraries;
+namespace PPMFWK\lib;
 
 /**
  * ObjectApply
