@@ -1,0 +1,12 @@
+{
+    "name": "elpepe/iframework",
+    "description": "My Framework",
+    "authors": [
+        {
+            "name": "ElPepe",
+            "email": "aunsoyjoven@hotmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}

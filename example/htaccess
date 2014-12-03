@@ -1,0 +1,47 @@
+# TODO: NginX
+
+# Uncomment next line for dev-mode
+#php_flag opcache.enable Off
+
+# Secure htaccess
+<Files .htaccess>
+	order allow,deny
+	deny from all
+</Files>
+
+# One program often misused for automated remote file inclusion attacks-is called  "libwww-perl". 
+# The RFI cannot succeed if your server refuses-to serve the file, 
+# so blocking this commonly malicious User-Agent is one defense. 
+SetEnvIfNoCase User-Agent libwww-perl block_bad_bots
+
+# to deny more User-Agents, copy the line above and change
+# only libwww-perl, to match the new name.
+deny from env=block_bad_bots
+
+# Blocks any request where the query string-(the part after the first question mark) 
+# contains "=http://" or-"=ftp://". During times when you need to use a query string 
+# of that-type yourself, you can comment out the code block or enable the-exception shown:
+RewriteEngine On
+RewriteCond %{QUERY_STRING} =(ht|f)tp\:// [NC]
+
+# Allow yourself, for SMF Forum Package Manager upgrades.
+# Set it to your own IP address so you are the only one who won't be blocked.
+#RewriteCond %{REMOTE_ADDR} !^111\.222\.333\.444$ [NC]
+RewriteRule .* - [F]
+
+# Ban any query string that contains a question-mark. 
+# The first question mark (which marks the beginning of the query-string) is not part of 
+# the query string, so only question marks after-the first one will trigger the ban:
+RewriteCond %{QUERY_STRING} (\?|%3F) [NC]
+RewriteRule .* - [F]
+
+# Prevent no Index file
+Options All -Indexes
+
+# Prevent folder indexing
+#IndexIgnore *
+
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?$1 [L,QSA]

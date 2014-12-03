@@ -1,0 +1,15 @@
+
+.non-printable,
+.header,
+.content,
+.sidebar { 
+	display: none; 
+}
+
+.printable { 
+	display: block;
+}
+
+html {
+	width: 200px;
+}

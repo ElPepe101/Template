@@ -1,0 +1,14 @@
+# Eclipse
+.buildpath
+.classpath
+.project
+.settings/
+
+# Mac
+.DS_Store
+
+# Composer
+vendor/
+
+# Codekit
+.codekit
