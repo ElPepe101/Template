@@ -3,7 +3,7 @@
 /**
  * Access Model
  */
-namespace PPMFWK\models;
+namespace iframework\models;
 
 class Access extends \Micro\ORM
 {

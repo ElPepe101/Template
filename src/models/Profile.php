@@ -3,7 +3,7 @@
 /**
  * Profile Model
  */
-namespace PPMFWK\models;
+namespace iframework\models;
 
 class Profile extends \Micro\ORM
 {

@@ -3,7 +3,7 @@
 /**
  * User Model
  */
-namespace PPMFWK\models;
+namespace iframework\models;
 
 class User extends \Micro\ORM
 {

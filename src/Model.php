@@ -1,4 +1,5 @@
 <?php
+namespace iframework;
 
 class Model //extends RedBean_SimpleModel 
 {

@@ -3,7 +3,7 @@
 /**
  * Status Model
  */
-namespace PPMFWK\models;
+namespace iframework\models;
 
 class Status extends \Micro\ORM
 {

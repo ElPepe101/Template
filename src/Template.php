@@ -1,6 +1,6 @@
 <?php
 
-namespace PPMFWK;
+namespace iframework;
 
 /**
  * This file handles the retrieval and serving of news articles

@@ -3,7 +3,7 @@
 /**
  * Module Model
  */
-namespace PPMFWK\models;
+namespace iframework\models;
 
 class Module extends \Micro\ORM
 {

@@ -2,7 +2,7 @@
 
 namespace iframework\lib;
 
-class _Forms 
+class Forms 
 {
 	
 	private $Form_db;

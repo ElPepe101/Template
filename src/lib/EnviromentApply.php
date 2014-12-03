@@ -1,6 +1,6 @@
 <?php
 
-class EnviromentApply_Library
+class EnviromentApply
 {
 
 	public function getIpAddress()
