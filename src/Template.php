@@ -8,9 +8,7 @@ namespace iframework;
 class Template
 {
 	
-	use MicroHandler;
-	
-	use Registry;
+	use traits\Registry;
 
 	private $modules;
 
@@ -46,7 +44,7 @@ class Template
 
 	function __construct($template = null, $ajax = false)
 	{
-		$this->modules = PPMFWK::$MODULES;
+		$this->modules = \iframework\Router::$MODULES;
 		
 		if (is_string($template))
 		{
@@ -66,7 +64,15 @@ class Template
 	 */
 	protected function _init($ajax = false)
 	{
-		$this->view = new View('master');
+		try 
+		{
+			$this->view = new \iframework\View('master');
+		}
+		catch (\Exception $e)
+		{
+			die($e);
+		}
+		
 		$this->setGlobalVars($this->view);
 		
 		if (!$ajax)
@@ -75,15 +81,6 @@ class Template
 			// It can be overriden or extended before render
 			$this->setCSS('normalize', 'general', $this->_template, 'print'); 
 			$this->setJS('modernizr', 'underscore', 'jquery', 'general', $this->_template);
-			
-			// Modules can't be overriden or extended
-			// this will depend on a well stablishd DB
-			// If using DB mode framework
-			if(PPMFWK::$LOGIN)
-			{
-				$this->setNavModule();
-				$this->view->assign('nav_module:global', $this->nav_module);
-			}
 			
 			$header = $this->setSection('header', true);
 			$footer = $this->setSection('footer', true);
@@ -99,12 +96,15 @@ class Template
 	 */
 	protected function setGlobalVars($section)
 	{
-		$section->assign('mainurl:global', PPMFWK::$SITEROOT . PPMFWK::getRealSafeArea() );
-		$section->assign('currenturl:global', PPMFWK::$SITEROOT . PPMFWK::getRealSafeArea() . PPMFWK::getCurrentScript());
-		$section->assign('currenturlnoscript:global', PPMFWK::$SITEROOT . PPMFWK::getRealSafeArea() . PPMFWK::getCurrentScript(true));
-		$section->assign('templateurl:global', PPMFWK::$SITEROOT . PPMFWK::getRealSafeArea() . PPMFWK::$APP . '/views/' . PPMFWK::$TEMPLATE );
+		$root = \iframework\Router::$SITEROOT;
+		$template = \iframework\Router::$TEMPLATE;
+		
+		$section->assign('mainurl:global', $root );
+		$section->assign('currenturl:global', $root . \iframework\Router::script());
+		$section->assign('currenturlnoscript:global', $root . \iframework\Router::script(true));
+		$section->assign('templateurl:global', $root . \iframework\Router::$APP . '/views/' . $template );
 		$section->assign('templatename:global', $this->_template);
-		$section->assign('title:global', PPMFWK::$TEMPLATE);
+		$section->assign('title:global', $template);
 	}
 
 	/**
@@ -117,12 +117,17 @@ class Template
 	 */
 	public function setSection($section, $inherit = false)
 	{
-		$new_section = new View(PPMFWK::$SECTIONS . '/' . $section);
+		try
+		{
+			$new_section = new \iframework\View(\iframework\Router::$SECTIONS . '/' . $section);
+		}
+		catch (\Exception $e)
+		{
+			die($e);
+		}
 		
 		if ($inherit)
-		{
 			$new_section->inherit($this->view);
-		}
 		
 		// Don't assign to 'content' section
 		// wait for it...
@@ -140,13 +145,17 @@ class Template
 	 */
 	public function setModule($module = '', $inherit = false)
 	{
-		$this->template = $this->modules . '/' . $module;
-		$new_module = new View($this->template);
+		try
+		{
+			$new_module = new \iframework\View($this->modules . '/' . $module);
+		}
+		catch (\Exception $e)
+		{
+			die($e);
+		}
 		
 		if ($inherit)
-		{
 			$new_module->inherit($this->view);
-		}
 		
 		// The same, wait for it...
 		$this->module = $new_module;
@@ -189,14 +198,20 @@ class Template
 	 */
 	public function setCSS()
 	{
+		$root = \iframework\Router::$SRVRROOT;
+		$site = \iframework\Router::$SITEROOT; 
+		$app = \iframework\Router::$APP;
+		$template = \iframework\Router::$TEMPLATE;
+		
 		$this->css = '';
 		$args = func_get_args();
+		
 		foreach($args as $css)
 		{
-			if(file_exists(PPMFWK::$SRVRROOT . '/' . PPMFWK::$APP . '/views/' . PPMFWK::$TEMPLATE . '/public/css/' . strtolower($css) . '.css'))
+			if(file_exists($root . '/' . $app . '/views/' . $template . '/public/css/' . strtolower($css) . '.css'))
 			{
 				$print = strtolower($css) == 'print' ? 'media="print"': '';
-				$css = PPMFWK::$SITEROOT . PPMFWK::getRealSafeArea() . PPMFWK::$APP . '/views/' . PPMFWK::$TEMPLATE . '/public/css/' . strtolower($css) . '.css';
+				$css = $site . $app . '/views/' . $template . '/public/css/' . strtolower($css) . '.css';
 				$this->css .= "\t<link rel='stylesheet' type='text/css' href='{$css}' {$print} />\n";
 			}	
 		}
@@ -210,38 +225,23 @@ class Template
 	 */
 	public function setJS()
 	{
+		$root = \iframework\Router::$SRVRROOT;
+		$site = \iframework\Router::$SITEROOT;
+		$app = \iframework\Router::$APP;
+		$template = \iframework\Router::$TEMPLATE;
+		
 		$this->js = '';
 		$args = func_get_args();
 		foreach($args as $js)
 		{
-			if(file_exists(PPMFWK::$SRVRROOT . '/' . PPMFWK::$APP . '/views/' . PPMFWK::$TEMPLATE . '/public/js/' . strtolower($js) . '.js'))
+			if(file_exists($root . '/' . $app . '/views/' . $template . '/public/js/' . strtolower($js) . '.js'))
 			{
-				$js = PPMFWK::$SITEROOT . PPMFWK::getRealSafeArea() . PPMFWK::$APP . '/views/' . PPMFWK::$TEMPLATE . '/public/js/' . strtolower($js) . '.js';
+				$js = $site . $app . '/views/' . $template . '/public/js/' . strtolower($js) . '.js';
 				$this->js .= "\t<script type='text/javascript' src='{$js}'></script>\n";
 			}
 		}
 		
 		return false;
 	}
-	
-	/**
-	 * 
-	 * @param Object $usr
-	 */
-	public function setNavModule($usr = NULL)
-	{
-		$this->nav_module = "\t<ul>\n";
-		$modules = $this->getModules($usr);
-		
-		foreach($modules as $access)
-		{
-			$href = PPMFWK::$SITEROOT . PPMFWK::getRealSafeArea() . $access->module->slug;
-			$this->nav_module .= "\t<li><a href='{$href}'>{$access->module->name}</a></li>\n";
-		}
-		
-		$current = PPMFWK::$SITEROOT . PPMFWK::getRealSafeArea() . PPMFWK::getCurrentScript(true);
-		$this->nav_module .= "\t<li><a href='{$current}/logout'>Cerrar Sessión</a></li></li>\n";
-		
-		$this->nav_module .= "\t</ul>\n";
-	}
+
 }

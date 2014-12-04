@@ -1,0 +1,21 @@
+{
+	"repositories": [
+		{
+			"type": "git",
+			"url": "https://github.com/ElPepe101/iFramework"
+		}
+	],
+	"require": {
+		"elpepe/iframework": "dev-master"
+	},
+	"autoload" : {
+		"classmap" : [
+			"app/controller",
+			"app/model",
+			"app/view"
+		],
+		"files" : [
+			"vendor/autoload.php"
+		]
+	}
+}

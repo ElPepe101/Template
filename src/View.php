@@ -1,5 +1,6 @@
 <?php
-namespace PPMFWK;
+
+namespace iframework;
 
 /**
  * Handles the view functionality of our MVC framework
@@ -28,10 +29,10 @@ class View
 	public function __construct($template)
 	{
 		// compose file name
-		$file = PPMFWK::$SRVRROOT . '/app/views/' . PPMFWK::$TEMPLATE . '/' . strtolower($template) . '.php';
+		$file = \iframework\Router::$SRVRROOT . '/app/view/' . \iframework\Router::$TEMPLATE . '/' . strtolower($template) . '.php';
 		
 		// for debbug
-		$this->template = $template;		
+		$this->template = $template;
 		$this->data = new \stdClass();
 		
 		if (file_exists($file))
@@ -40,6 +41,8 @@ class View
 			$this->render = $file;
 			$this->name = array_reverse(explode('/', $template))[0];
 		}
+		else
+			throw new \Exception("Template file for '{$this->template}' doesn't exists in given route: '{$file}'");
 	}
 
 	/**
@@ -67,6 +70,7 @@ class View
 	 */
 	public function assign($variable, $value)
 	{
+		//echo $variable . ' = ' . $value.' - <br>';
 		$this->data->{$variable} = $value;
 	}
 
@@ -90,10 +94,10 @@ class View
 	private function getCleanObjProperty($data)
 	{
 		$clean_data = new \stdClass();
-		
+
 		foreach ($data as $k => $d)
 		{
-			//echo $k . $d.'<br>';
+			//echo $k . ' = ' . $d.' - <br>';
 			$clean_data->{preg_replace('/:(.*)/', '', $k)} = $d;
 		}
 		
@@ -112,9 +116,7 @@ class View
 	{
 		// Turn output buffering on, capturing all output
 		if ($direct_output !== TRUE)
-		{
 			ob_start();
-		}
 		
 		// Parse data variables into local variables
 		// Remove data type
@@ -127,14 +129,12 @@ class View
 		}
 		else
 		{
-			echo $data->msg;
+			///echo $data->msg;
 		}
 		
 		// Get the contents of the buffer and return it
 		if ($direct_output !== TRUE)
-		{
 			return ob_get_clean();
-		}
 	}
 
 	public function __destruct()

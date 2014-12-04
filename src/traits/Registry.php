@@ -1,5 +1,6 @@
 <?php
-namespace PPMFWK;
+
+namespace iframework\traits;
 
 trait Registry
 {
@@ -34,6 +35,6 @@ trait Registry
 	 */
 	public function __set($varName, $value)
 	{
-		$this->_Registry->$varName = new lib\ObjectApply($value);
+		$this->_Registry->$varName = new \iframework\lib\ObjectApply($value);
 	}
 }

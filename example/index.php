@@ -8,18 +8,14 @@ if( ! class_exists('Locale', false)) {
 
 setlocale(LC_ALL, 'es_ES.UTF-8');
 
-// Manual access
-require_once (__DIR__ . '/system/Micro/common.php');
-require_once (__DIR__ . '/system/PPMFWK/PPMFWK.php');
-
-\PPMFWK\PPMFWK::registerAutoloader();
+require 'vendor/autoload.php';
 
 // Settings
-\PPMFWK\PPMFWK::$SRVRROOT = __DIR__;
-\PPMFWK\PPMFWK::$SITEROOT = array('localhost/example.com', '189.137.75.112/example.com', 'example.com', 'www.example.com');
-\PPMFWK\PPMFWK::$SAFEAREA = 'portal';
-\PPMFWK\PPMFWK::$DEBUG = TRUE;
-//\PPMFWK\PPMFWK::$TEMPLATE = 'example'; 
+\iframework\Router::$SRVRROOT = __DIR__;
+\iframework\Router::$SITEROOT = array('localhost/example.com', '189.137.75.112/example.com', 'example.com', 'www.example.com');
+\iframework\Router::$SAFEAREA = 'portal';
+\iframework\Router::$DEBUG = TRUE;
+//\iframework\Router::$TEMPLATE = 'example'; 
 
 /**
  * Database
@@ -29,7 +25,7 @@ require_once (__DIR__ . '/system/PPMFWK/PPMFWK.php');
  */
 if($_SERVER['HTTP_HOST'] == 'localhost')
 {
-	\PPMFWK\PPMFWK::$micro_config['database'] = array(
+	\iframework\Router::$config['database'] = array(
 		'dns' => "mysql:host=127.0.0.1;port=3306;dbname=",
 		'username' => '',
 		'password' => '',
@@ -41,7 +37,7 @@ if($_SERVER['HTTP_HOST'] == 'localhost')
 }
 else
 {
-	\PPMFWK\PPMFWK::$micro_config['database'] = array(
+	\iframework\Router::$config['database'] = array(
 		'dns' => "mysql:host=127.0.0.1;port=3306;dbname=",
 		'username' => '',
 		'password' => '',
@@ -57,7 +53,6 @@ else
  * @link http://php.net/setcookie
  *      
  */
-
 \Micro\Cookie::$settings = array(
 	'key' => '',
 	'timeout' => time() + (60 * 60 * 4), // Ignore submitted cookies older than 4 hours
@@ -68,4 +63,4 @@ else
 	'httponly' => ''
 );
 
-new \PPMFWK\PPMFWK(true);
+new \iframework\Router(true);

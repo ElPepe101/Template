@@ -42,6 +42,8 @@ class Router
 
 	public static $DEBUG = true;
 	
+	public static $SESSION = NULL;
+	
 	public static $config = array();
 
 	private static $route = '';
@@ -54,7 +56,7 @@ class Router
 	 *
 	 * @param unknown $login        	
 	 */
-	public function __construct($session)
+	public function __construct()
 	{
 		ini_set('error_reporting', E_ALL);
 
@@ -73,67 +75,48 @@ class Router
 		self::$HOUR = date('Y-m-d-H', strtotime('-2 hours'));
 		
 		// PREPARE THE ROUTE;
-		self::$route = strtolower(self::path($_SERVER['QUERY_STRING'])[1]);
+		try
+		{
+			$route = self::path($_SERVER['QUERY_STRING']);
+			self::$route = strtolower($route[1]);
+		}
+		catch (\Exception $e)
+		{
+			// Show the complete error
+			if (self::$DEBUG)
+				echo $e;
+			
+			self::_404('The page you are looking for does not exists.');
+			return;
+		}
 		
-		// NOT USING LOGIN?
-		if (! $session)
+		// USING A SESSION LIBRARY?
+		if (!! self::$SESSION)
 		{
-			self::$route = strtolower(self::start($route));
+			/*
+			 // CHECK LOGIN ACCESS TO MODULE
+			if ($session->verify(true))
+			{
+				self::$route = strtolower(self::start($route));
+			}
+			// NO ACCESS? GO TO LOGIN
+			else
+			{
+				header('location: ' . self::$SITEROOT.'?baduser=');
+			}
+			*/
 		}
-		// CHECK LOGIN ACCESS TO MODULE
-		elseif ($session->verify(true))
-		{
-			self::$route = strtolower(self::start($route));
-		}
-		// NO ACCESS? GO TO LOGIN
-		else
-		{
-			header('location: ' . self::$SITEROOT.'?baduser=');
-		}
+		
+		// Start the page
+		self::start($route);
 	}
 
 	/**
-	 * PPMFWK PSR-0 autoloader
-	 *
-	public static function autoload($className)
-	{
-		$thisClass = str_replace(__NAMESPACE__ . '\\', '', __CLASS__);
-		$baseDir = __DIR__;
-		
-		if (substr($baseDir, - strlen($thisClass)) === $thisClass)
-		{
-			$baseDir = substr($baseDir, 0, - strlen($thisClass));
-		}
-		
-		$className = ltrim($className, '\\');
-		$fileName = $baseDir;
-		$namespace = '';
-		if ($lastNsPos = strripos($className, '\\'))
-		{
-			$namespace = substr($className, 0, $lastNsPos);
-			$className = substr($className, $lastNsPos + 1);
-			$fileName .= str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
-		}
-		$fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
-		
-		if (file_exists($fileName))
-		{
-			require $fileName;
-		}
-	}
-
-	/**
-	 * Register PPMFWK's PSR-0 autoloader
-	 *
-	public static function registerAutoloader()
-	{
-		spl_autoload_register(__NAMESPACE__ . "\\PPMFWK::autoload");
-	}
-
-	/**
+	 * 
 	 * fetch the passed request
-	 *
-	 * @param unknown $request        	
+	 * 
+	 * @param unknown $request
+	 * @return multitype:|multitype:string mixed
 	 */
 	public static function path($request)
 	{
@@ -143,6 +126,13 @@ class Router
 		// the page is the first element
 		$page = array_shift($parsed);
 		$page = $page == '' ? 'Home' : preg_replace('/\s|\x2d/', '_', $page);
+		
+		// compute the path to the file
+		$page = str_replace(' ', '_', ucwords(str_replace('_', ' ', $page)));
+		$target = self::$SRVRROOT . '/' . self::$APP . '/controller/' . $page . '.php';
+		
+		if ( ! file_exists($target))
+			throw new \Exception("The file '{$request}' doesn't exists for the target '{$target}'. \n");
 		
 		// the first of the array is the Action (Hook)
 		// IF using sessions use default, then main.
@@ -155,23 +145,14 @@ class Router
 			
 			// split GET vars along '=' symbol to separate variable, values
 			list ($variable, $value) = explode('=', $argument);
-			self::$getVars[$variable] = urldecode($value);
+			self::$GET[$variable] = urldecode($value);
 		}
 		
-		// compute the path to the file
-		$page = str_replace(' ', '_', ucwords(str_replace('_', ' ', $page)));
-		$target = self::$SRVRROOT . '/' . self::$APP . '/controllers/' . $page . '.php';
-
 		// get target
-		if (file_exists($target))
-		{
-			return array(
-				$target,
-				$page
-			);
-		}
-		
-		return array();
+		return array(
+			$target,
+			$page
+		);
 	}
 
 	/**
@@ -190,23 +171,23 @@ class Router
 		if (class_exists($page))
 		{
 			// instantiate the controller
-			$controller = new $page($page, isset(self::$getVars['ajax'])? true: false );
+			$controller = new $page($page, isset(self::$GET['ajax'])? true: false );
 			
 			// For security reasons, obtain only controller
 			// methods without implements or extents
 			// http://stackoverflow.com/questions/1960365/php-get-class-methods-problem
 			$controller_methods = array_diff(get_class_methods($controller), get_class_methods(get_parent_class($controller)));
-			
+
 			// If using logout function from another instance
 			// Eg.: PPMFWK\MicroHandler Trait
 			// $traits = class_uses(get_parent_class($controller));
-			! method_exists($controller, 'logout') && ! in_array($controller_methods, 'logout') ?  : array_push($controller_methods, 'logout');
+			! method_exists($controller, 'logout') && ! in_array('logout', $controller_methods) ?  : array_push($controller_methods, 'logout');
 			
 			// Execute the method
 			if (in_array(self::$hook, $controller_methods))
 			{
 				// pass any GET varaibles to the main method
-				$controller->{self::$hook}(self::$getVars);
+				$controller->{self::$hook}(self::$GET);
 			}
 			// There's no hook to call
 			else
@@ -218,6 +199,9 @@ class Router
 		}
 		
 		// can't find the file in 'controllers'!
+		if (self::$DEBUG)
+			echo "The Class '{$page}' is not defined in '{$file}'. Please elaborate. \n";
+				
 		self::_404("The page doesn't exists");
 		return false;
 	}
@@ -229,7 +213,7 @@ class Router
 	 */
 	public static function _404($msg)
 	{
-		$_404 = new Template('404');
+		$_404 = new \iframework\Template('404');
 		$_404->_404msg = $msg;
 		$_404->renderModule();
 		return '';
@@ -281,9 +265,8 @@ class Router
 	public static function script( $just_route = false )
 	{
 		if($just_route)
-		{
 			return self::$route;
-		}
+		
 		return self::$route. '/' . self::$hook;
 	}
 }
