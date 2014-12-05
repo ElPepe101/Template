@@ -5,7 +5,7 @@ namespace iframework;
 /**
  * PPMFWK
  *
- * @package PPMFWK
+ * @package iframework
  * @author Antonio "ElPepe" Segoviano aunsoyjoven {at} hotmail.com
  */
 class Router
@@ -56,7 +56,7 @@ class Router
 	 *
 	 * @param unknown $login        	
 	 */
-	public function __construct()
+	public function __construct($session = false)
 	{
 		ini_set('error_reporting', E_ALL);
 
@@ -90,21 +90,19 @@ class Router
 			return;
 		}
 		
-		// USING A SESSION LIBRARY?
-		if (!! self::$SESSION)
+		// USING SESSIONS?
+		// The home page may contain the login page,
+		// so it's allowed
+		if (!! $session && self::$route != 'home')
 		{
-			/*
 			 // CHECK LOGIN ACCESS TO MODULE
-			if ($session->verify(true))
+			$_ses = new \iframework\lib\Session();
+			
+			if ( ! $_ses->verify(true))
 			{
-				self::$route = strtolower(self::start($route));
+				self::_404('The page you are looking for does not exists.');
+				return;
 			}
-			// NO ACCESS? GO TO LOGIN
-			else
-			{
-				header('location: ' . self::$SITEROOT.'?baduser=');
-			}
-			*/
 		}
 		
 		// Start the page

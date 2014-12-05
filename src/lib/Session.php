@@ -1,30 +1,17 @@
 <?php
 
-/**
- * MyController | Common
- *
- * Basic DEMO outline for standard controllers
- *
- * @package		MicroMVC
- * @author		David Pennington
- * @copyright	(c) 2011 MicroMVC Framework
- * @license		http://micromvc.com/license
- ********************************** 80 Columns *********************************
- */
 namespace iframework\lib;
-
-//trait MicroHandler
 
 class Session
 {
-	
+
 	// Global view template
 	// public $template = 'Layout';
 	public $db;
 
 	public function __construct()
 	{
-		$this->db = $this->database();
+		//$this->db = $this->database();
 	}
 	
 	/**
@@ -35,10 +22,10 @@ class Session
 	 */
 	public function verify($module)
 	{
-		\lib\Micro\Session::start();
+		\iframework\lib\Micro\Session::start();
 		
 		// IF SESSION EXISTS: ONLY CHECK MODULE ACCESS
-		if (\lib\Micro\Session::token((string) $_SESSION['token']))
+		if (\iframework\lib\Micro\Session::token((string) $_SESSION['token']))
 		{
 			// Prevent session fixation
 			$this->update(); // EXTREMELY IMPORTANT
@@ -50,7 +37,7 @@ class Session
 			// take it back to where belongs
 			if( ! $allowed)
 			{
-				header('location: ' . iframework\Router::$SITEROOT . $_SESSION['default']);
+				header('location: ' . \iframework\Router::$SITEROOT . $_SESSION['default']);
 				exit();
 			}
 				
@@ -128,7 +115,7 @@ class Session
 	 */
 	public function send()
 	{
-		\Micro\Session::save();
+		\iframework\lib\Micro\Session::save();
 	}
 
 	/**
@@ -136,7 +123,7 @@ class Session
 	 */
 	public function end()
 	{
-		\lib\Micro\Session::destroy();
+		\iframework\lib\Micro\Session::destroy();
 		unset($_COOKIE['PHPSESSID']);
 		setcookie("PHPSESSID", "", time() - 3600, "/");
 	}
@@ -157,7 +144,7 @@ class Session
 		}
 		
 		// GENERATE NEW TOKEN
-		\lib\Micro\Session::token();
+		\iframework\lib\Micro\Session::token();
 		
 		// Save cookies
 		$this->send();
@@ -224,7 +211,7 @@ class Session
 		foreach ($m as $access)
 		{
 			// $access->module->id_module;
-			if ($access->module->slug == PPMFWK::$router)
+			if ($access->module->slug == \iframework\Router::$router)
 			{
 				return true;
 			}
@@ -238,14 +225,45 @@ class Session
 	 * 
 	 * @param Object $usr
 	 */
-	public function getModules($usr = NULL)
+	public function modules($usr = NULL)
 	{
 		if(is_null($usr))
 		{
-			$usr = models\User::fetch(array('id_usr' => $_SESSION['id']))[0];
+			$usr = \iframework\models\User::fetch(array('id_usr' => $_SESSION['id']))[0];
 		}
 		return $usr->profile->access();
 	}
+	
+	/**
+	 *
+	 * @param Object $usr
+	 
+	public function setNavModule($usr = NULL)
+	{
+		$this->nav_module = "\t<ul>\n";
+	
+		// Modules can't be overriden or extended
+		// this will depend on a well stablishd DB
+		// If using DB mode framework
+		if(\iframework\Router::$LOGIN)
+		{
+		$this->setNavModule();
+		$this->view->assign('nav_module:global', $this->nav_module);
+		}
+	
+		$modules = $this->getModules($usr);
+	
+		foreach($modules as $access)
+		{
+		$href = \iframework\Router::$SITEROOT . $access->module->slug;
+		$this->nav_module .= "\t<li><a href='{$href}'>{$access->module->name}</a></li>\n";
+		}
+	
+		$current = \iframework\Router::$SITEROOT . \iframework\Router::script(true);
+		$this->nav_module .= "\t<li><a href='{$current}/logout'>Cerrar Sessión</a></li></li>\n";
+	
+		$this->nav_module .= "\t</ul>\n";
+	}*/
 
 	/**
 	 * Hook
@@ -256,7 +274,7 @@ class Session
 	{
 		$return = is_null($return) ?  : '&return=' . $return;
 		$this->sess_end();
-		header('location: ' . PPMFWK::$SITEROOT);
+		header('location: ' . \iframework\Router::$SITEROOT);
 	}
 }
 // End Trait

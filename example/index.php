@@ -53,7 +53,7 @@ else
  * @link http://php.net/setcookie
  *      
  */
-\Micro\Cookie::$settings = array(
+\iframework\lib\Micro\Cookie::$settings = array(
 	'key' => '',
 	'timeout' => time() + (60 * 60 * 4), // Ignore submitted cookies older than 4 hours
 	'expires' => 0, // Expire on browser close
