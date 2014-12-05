@@ -7,7 +7,6 @@
 			"email": "aunsoyjoven@hotmail.com"
 		}
 	],
-	"minimum-stability": "dev",
 	"repositories": [
 		{
 			"type": "package",
