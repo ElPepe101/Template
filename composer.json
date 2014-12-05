@@ -12,7 +12,7 @@
 			"type": "package",
 			"package": {
 				"name": "redbeanphp",
-				"version": "dev-master",
+				"version": "*",
 				"dist": {
 					"url": "http://www.redbeanphp.com/downloadredbean.php",
 					"type": "tar"
@@ -22,7 +22,7 @@
 	],
 	"require": {
 		"php": ">=5.3.0",
-		"redbeanphp": "dev-master"
+		"redbeanphp": "*"
 	},
 	"autoload": {
 		"classmap": ["src/"],
