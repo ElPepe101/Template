@@ -6,7 +6,7 @@
 			"name": "ElPepe",
 			"email": "aunsoyjoven@hotmail.com"
 		}
-	]
+	],
 	"require": {
 		"php": ">=5.3.0"
 	},
