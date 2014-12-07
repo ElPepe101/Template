@@ -61,8 +61,7 @@ else
 \iframework\Router::construct();
 $_ses = new \iframework\lib\Session();
 
-// CHECK LOGIN ACCESS TO MODULE
-if ( ! $_ses->verify(true))
-	\iframework\Router::_404('The page you are looking for does not exists.');
+// Check login access to module
+$_ses->verify();
 
 \iframework\Router::start();
