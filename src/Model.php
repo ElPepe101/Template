@@ -1,5 +1,6 @@
 <?php
-namespace iframework;
+
+require 'rb.php';
 
 class Model //extends RedBean_SimpleModel 
 {
@@ -40,6 +41,9 @@ class Model //extends RedBean_SimpleModel
 		{
 			self::$chill[] = $this->table;
 		}
+		
+		// Start
+		$this->database();
 		
 		// freeze all tables in array
 		// this will prevent the recreation
@@ -253,5 +257,15 @@ class Model //extends RedBean_SimpleModel
 		}
 	
 		return;
+	}
+	
+	private function database()
+	{
+		R::setup(\iframework\Router::$config['database']['dns'],\iframework\Router::$config['database']['username'],\iframework\Router::$config['database']['password']);
+	}
+	
+	public function __destruct()
+	{
+		R::close();
 	}
 }

@@ -7,21 +7,25 @@ class Session
 
 	// Global view template
 	// public $template = 'Layout';
-	public $db;
+	public $model;
 
-	public function __construct()
+	public function __construct($model)
 	{
-		//$this->db = $this->database();
+		// Load database
+		$this->model = $model;
 	}
 	
 	/**
 	 * Will check the module in the database for its use with the session
 	 *
-	 * @param string $method
-	 *        	name
 	 */
-	public function verify($module)
+	public function verify()
 	{
+		// Home will never be secure
+		// it may be a login page
+		if(\iframework\Router::$is_home)
+			return true;
+		
 		\iframework\lib\Micro\Session::start();
 		
 		// IF SESSION EXISTS: ONLY CHECK MODULE ACCESS
@@ -51,7 +55,9 @@ class Session
 			
 		// IF NOT LOGGED IN AND SEND A BAD LOGIN
 		$this->end();
-			
+
+		\iframework\Router::_404("You are not allowed to access this page.");
+		
 		// DO NOT RETURN TRUE, EVER...
 		return false;
 	}
@@ -99,15 +105,6 @@ class Session
 			$this->end();
 			return false;
 		}
-	}
-
-	/**
-	 * Load database connection
-	 */
-	public function database($name = 'database')
-	{
-		// Load database
-		return new Database();
 	}
 
 	/**
