@@ -46,6 +46,8 @@ class Router
 	
 	public static $config = array();
 
+	private static $router = array();
+	
 	private static $route = '';
 
 	private static $hook = '';
@@ -56,7 +58,7 @@ class Router
 	 *
 	 * @param unknown $login        	
 	 */
-	public function __construct($session = false)
+	public static function construct($session = false)
 	{
 		ini_set('error_reporting', E_ALL);
 
@@ -65,7 +67,8 @@ class Router
 		else
 			ini_set('display_errors', 0);
 		
-		$this->root();
+		//
+		self::root();
 		
 		// ////////////////////////////////////
 		// SETTING TIMEZONE
@@ -77,7 +80,7 @@ class Router
 		// PREPARE THE ROUTE;
 		try
 		{
-			$route = self::path($_SERVER['QUERY_STRING']);
+			self::$router = self::path($_SERVER['QUERY_STRING']);
 			self::$route = strtolower($route[1]);
 		}
 		catch (\Exception $e)
@@ -89,24 +92,6 @@ class Router
 			self::_404('The page you are looking for does not exists.');
 			return;
 		}
-		
-		// USING SESSIONS?
-		// The home page may contain the login page,
-		// so it's allowed
-		if (!! $session && self::$route != 'home')
-		{
-			 // CHECK LOGIN ACCESS TO MODULE
-			$_ses = new \iframework\lib\Session();
-			
-			if ( ! $_ses->verify(true))
-			{
-				self::_404('The page you are looking for does not exists.');
-				return;
-			}
-		}
-		
-		// Start the page
-		self::start($route);
 	}
 
 	/**
@@ -158,9 +143,9 @@ class Router
 	 * @param array $router
 	 * @return unknown|boolean
 	 */
-	private function start(array $router)
+	public function start()
 	{
-		list ($file, $page) = $router;
+		list ($file, $page) = self::$router;
 		
 		// fetch file
 		include_once ($file);
@@ -221,7 +206,7 @@ class Router
 	 * 
 	 * @return boolean
 	 */
-	private function root()
+	private static function root()
 	{
 		//['HTTP_HOST'] => 189.137.75.112
 		//['HTTP_REFERER'] => http://189.137.75.112/stabilizat.com/
