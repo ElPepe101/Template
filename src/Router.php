@@ -45,6 +45,8 @@ class Router
 	public static $SESSION = NULL;
 	
 	public static $config = array();
+	
+	public static $is_home = true;
 
 	private static $router = array();
 	
@@ -81,7 +83,7 @@ class Router
 		try
 		{
 			self::$router = self::path($_SERVER['QUERY_STRING']);
-			self::$route = strtolower($route[1]);
+			self::$route = strtolower(self::$router[1]);
 		}
 		catch (\Exception $e)
 		{
@@ -143,7 +145,7 @@ class Router
 	 * @param array $router
 	 * @return unknown|boolean
 	 */
-	public function start()
+	public static function start()
 	{
 		list ($file, $page) = self::$router;
 		
@@ -199,7 +201,7 @@ class Router
 		$_404 = new \iframework\Template('404');
 		$_404->_404msg = $msg;
 		$_404->renderModule();
-		return '';
+		exit();
 	}
 	
 	/**

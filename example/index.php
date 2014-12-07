@@ -26,13 +26,9 @@ require 'vendor/autoload.php';
 if($_SERVER['HTTP_HOST'] == 'localhost')
 {
 	\iframework\Router::$config['database'] = array(
-		'dns' => "mysql:host=127.0.0.1;port=3306;dbname=",
-		'username' => '',
-		'password' => '',
-		// 'dns' => "pgsql:host=localhost;port=5432;dbname=micromvc",
-		// 'username' => 'postgres',
-		// 'password' => 'postgres',
-		'params' => array()
+		'dns' => "mysql:host=127.0.0.1;port=3306;dbname=icodb",
+		'username' => 'ElPepe',
+		'password' => '%1a2s3d4f%G_'
 	);
 }
 else
@@ -40,8 +36,7 @@ else
 	\iframework\Router::$config['database'] = array(
 		'dns' => "mysql:host=127.0.0.1;port=3306;dbname=",
 		'username' => '',
-		'password' => '',
-		'params' => array()
+		'password' => ''
 	);
 }
 
@@ -63,4 +58,11 @@ else
 	'httponly' => ''
 );
 
-new \iframework\Router(true);
+\iframework\Router::construct();
+$_ses = new \iframework\lib\Session();
+
+// CHECK LOGIN ACCESS TO MODULE
+if ( ! $_ses->verify(true))
+	\iframework\Router::_404('The page you are looking for does not exists.');
+
+\iframework\Router::start();
