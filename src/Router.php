@@ -45,8 +45,6 @@ class Router
 	public static $SESSION = NULL;
 	
 	public static $config = array();
-	
-	public static $is_home = true;
 
 	private static $router = array();
 	
@@ -243,15 +241,46 @@ class Router
 		return false;	
 	}
 	
+	// ////////////////////////////////////
+	// ////////////////////////////////////
+	// READ ONLY FUNCTIONS
+	
 	/**
-	 * 
+	 *
 	 * @return string
 	 */
 	public static function script( $just_route = false )
 	{
 		if($just_route)
 			return self::$route;
-		
+	
 		return self::$route. '/' . self::$hook;
+	}
+	
+	/**
+	 * 
+	 * @return multitype:
+	 */
+	public static function params()
+	{
+		return self::$GET;
+	}
+	
+	/**
+	 * 
+	 * @return string
+	 */
+	public static function route()
+	{
+		return self::$route;
+	}
+	
+	/**
+	 * 
+	 * @return boolean
+	 */
+	public static function isHome()
+	{
+		return self::$route == 'home';
 	}
 }

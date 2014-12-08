@@ -9781,14 +9781,14 @@ interface Plugin
 
 ;
 }
-namespace {
+/*namespace {
 
 //make some classes available for backward compatibility
 class RedBean_SimpleModel extends \RedBeanPHP\SimpleModel {};
 
 if (!class_exists('R')) {
 	class R extends \RedBeanPHP\Facade{};
-}
+}*/
 
 
 
@@ -9819,7 +9819,7 @@ if (!class_exists('R')) {
  *
  * @return mixed
  */
-if (!function_exists('EID')) {
+/*if (!function_exists('EID')) {
 
 	function EID($enumName)
 	{
@@ -9828,4 +9828,4 @@ if (!function_exists('EID')) {
 
 }
 
-}
+}*/

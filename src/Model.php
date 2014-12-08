@@ -2,6 +2,16 @@
 
 namespace iframework;
 
+/**
+ * Driver for RedBeanPHP
+ * 
+ * @author ElPepe
+ *
+ * @todo Commenting and Documenting
+ * @todo Change name from $belongs_to to $owns
+ * @todo Remove issue with $belongs_to key pairing
+ * 
+ */
 class Model //extends RedBean_SimpleModel 
 {
 
@@ -27,6 +37,8 @@ class Model //extends RedBean_SimpleModel
 	
 	private static $chill = array();
 	
+	private static $_db = false;
+	
 	/**
 	 * 
 	 * @param ! bool $create
@@ -48,7 +60,7 @@ class Model //extends RedBean_SimpleModel
 		// freeze all tables in array
 		// this will prevent the recreation
 		// of the table in DB
-		R::freeze( self::$chill );
+		\RedBeanPHP\Facade::freeze( self::$chill );
 		
 		if( !! $create)
 		{
@@ -67,13 +79,13 @@ class Model //extends RedBean_SimpleModel
 		if( !! $length)
 		{
 			// Get the beans
-			$this->model = R::dispense($this->table, $length);
+			$this->model = \RedBeanPHP\Facade::dispense($this->table, $length);
 	
 			return;
 		}
 		
 		// Instance the only RedBean model
-		$this->model = R::dispense($this->table);
+		$this->model = \RedBeanPHP\Facade::dispense($this->table);
 		
 		return;
 	}
@@ -83,7 +95,7 @@ class Model //extends RedBean_SimpleModel
 	 */
 	public function preset()
 	{
-		if($this->chilled) throw new Exception('Table: "' . $this->table . '" is chilled. Cannot be preset');
+		if($this->chilled) throw new \Exception('Table: "' . $this->table . '" is chilled. Cannot be preset');
 		
 		// Set the amount of rows to begin with
 		// http://stackoverflow.com/questions/5237640/php-array-length-for-a-two-dimensional-array-y-axis
@@ -94,7 +106,7 @@ class Model //extends RedBean_SimpleModel
 		foreach($this->init_cols as $col => $def)
 		{
 			// Cannot use numeric columns
-			if(is_numeric($col)) throw new Exception('Cannot use numeric columns in "' . $col . '" => "' . $def .'"');
+			if(is_numeric($col)) throw new \Exception('Cannot use numeric columns in "' . $col . '" => "' . $def .'"');
 			
 			if(is_array($this->model))
 			{
@@ -129,7 +141,7 @@ class Model //extends RedBean_SimpleModel
 	 */
 	public function reset()
 	{
-		if($this->chilled) throw new Exception('Table: "' . $this->table . '" is chilled. Cannot be reset');
+		if($this->chilled) throw new \Exception('Table: "' . $this->table . '" is chilled. Cannot be reset');
 		
 		if( !! $this->belongs_to)
 		{
@@ -142,10 +154,13 @@ class Model //extends RedBean_SimpleModel
 				{
 					$this->_belongs_to[$own]->reset();
 				}
-				catch (Exception $e) {}	
+				catch (\Exception $e) {
+					die($e);
+				}
 				
-				$this->_belongs_to[$own]->load($ndx);
+				$this->_belongs_to[$own]->load(array_keys($ndx));
 			}
+			//print_r($this->_belongs_to);
 		}
 		
 		if( !! $this->has_many)
@@ -162,7 +177,9 @@ class Model //extends RedBean_SimpleModel
 				{
 					$this->_has_many[$shared]->reset();
 				} 
-				catch (Exception $e) {}
+				catch (\Exception $e) {
+					die($e);
+				}
 				
 				$this->_has_many[$shared]->load(array_keys($ndx));
 			}
@@ -180,18 +197,37 @@ class Model //extends RedBean_SimpleModel
 	/**
 	 * 
 	 */
-	public function load(array $ndx = array())
+	public function load(array $ndx = array(), $mode = 'batch')
 	{
 		if( empty($ndx) )
 		{
-			$this->model = R::findAll($this->table);
+			$this->model = \RedBeanPHP\Facade::findAll($this->table);
 			
 			return;
 		}
 		
-		$this->model = R::batch($this->table, $ndx);
+		switch ($mode)
+		{
+			case 'batch':
+				$this->model = \RedBeanPHP\Facade::$mode($this->table, $ndx);
+				break;
+			case 'load':
+				$this->model = \RedBeanPHP\Facade::$mode($this->table, $ndx[0]);
+				return $this->model;
+				break;
+		}
 		
 		return;
+	}
+	
+	public function find($needles, array $data, $many = false)
+	{
+		if($many)
+			$this->model = \RedBeanPHP\Facade::find( $this->table, $needles, $data);
+		else
+			$this->model = \RedBeanPHP\Facade::findOne( $this->table, $needles, $data);
+		
+		return $this->model; 
 	}
 	
 	/**
@@ -201,11 +237,11 @@ class Model //extends RedBean_SimpleModel
 	public function store( $array = false )
 	{
 		// Store the table in DB
-		if($array) 
-			R::storeAll($this->model);
+		if($array)
+			\RedBeanPHP\Facade::storeAll($this->model);
 		
 		else 
-			R::store($this->model);
+			\RedBeanPHP\Facade::store($this->model);
 		
 		return;
 	}
@@ -216,7 +252,7 @@ class Model //extends RedBean_SimpleModel
 	 */
 	private function drop( $table = '' )
 	{
-		R::exec("DROP TABLE IF EXISTS {$table};");
+		\RedBeanPHP\Facade::exec("DROP TABLE IF EXISTS {$table};");
 	
 		return;
 	}
@@ -225,20 +261,21 @@ class Model //extends RedBean_SimpleModel
 	 *
 	 */
 	private function setForeignKeys()
-	{	
+	{
 		if( !! $this->_belongs_to)
 		{
 			foreach($this->_belongs_to as $own => $instance)
 			{
-				$this->load($nstnc);
+				$index = $this->belongs_to[str_replace('own', '', strtolower($own))];
+				
+				$this->load($index);
 				foreach($this->model as $model)
 					$model->{$own} = is_array($instance->model) ? $instance->model : [$instance->model];
+				
 			}
 			
 			$this->store(true);
 		}
-				
-			//if( !! $this->has_many) {}
 				
 		if( !! $this->_has_many)
 		{
@@ -261,11 +298,16 @@ class Model //extends RedBean_SimpleModel
 	
 	private function database()
 	{
-		R::setup(\iframework\Router::$config['database']['dns'],\iframework\Router::$config['database']['username'],\iframework\Router::$config['database']['password']);
+		if( ! self::$_db)
+		{
+			\RedBeanPHP\Facade::setup(\iframework\Router::$config['database']['dns'],\iframework\Router::$config['database']['username'],\iframework\Router::$config['database']['password']);
+			self::$_db = true;
+		}
 	}
 	
 	public function __destruct()
 	{
-		R::close();
+		\RedBeanPHP\Facade::close();
+		self::$_db = false;
 	}
 }

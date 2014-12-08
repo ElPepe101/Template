@@ -2,15 +2,27 @@
 
 namespace iframework\lib;
 
+/**
+ * 
+ * @author ElPepe
+ *
+ * @todo Commenting and Documenting
+ * 
+ */
 class Session
 {
 
-	// Global view template
-	// public $template = 'Layout';
 	public $model;
+	
+	private $modules = array();
 
 	public function __construct($model)
 	{
+		if(isset($_GET['logout']) && $_GET['logout'])
+		{
+			$this->logout();
+			exit();
+		}
 		// Load database
 		$this->model = $model;
 	}
@@ -23,88 +35,82 @@ class Session
 	{
 		// Home will never be secure
 		// it may be a login page
-		if(\iframework\Router::$is_home)
-			return true;
-		
+		if(\iframework\Router::isHome())
+			return;
+			
 		\iframework\lib\Micro\Session::start();
 		
-		// IF SESSION EXISTS: ONLY CHECK MODULE ACCESS
-		if (\iframework\lib\Micro\Session::token((string) $_SESSION['token']))
-		{
-			// Prevent session fixation
-			$this->update(); // EXTREMELY IMPORTANT
-				
-			$allowed = $this->modules($_SESSION['id']);
-				
-			// if not allowed to the module,
-			// but it's a certified user
-			// take it back to where belongs
-			if( ! $allowed)
-			{
-				header('location: ' . \iframework\Router::$SITEROOT . $_SESSION['default']);
-				exit();
-			}
-				
-			return $allowed;
-		}
 		// IF USER SENDS LOGIN DATA
-		elseif (isset($_POST['login'], $_POST['pass'], $_POST['token']))
-		{
-			return $this->init();
-		}
-			
-		// IF NOT LOGGED IN AND SEND A BAD LOGIN
-		$this->end();
-
-		\iframework\Router::_404("You are not allowed to access this page.");
+		if (isset($_POST['login'], $_POST['pass'], $_POST['token']))
+		$this->init();
 		
-		// DO NOT RETURN TRUE, EVER...
-		return false;
+		// IF SESSION EXISTS: ONLY CHECK MODULE ACCESS
+		elseif (\iframework\lib\Micro\Session::token((string) $_SESSION['token']))
+			$this->update(); // Prevent session fixation. EXTREMELY IMPORTANT!
+
+		// Cache the modules
+		try
+		{
+			$this->modules();
+		}
+		catch (\Exception $e)
+		{
+			// BAD LOGIN
+			$this->end();
+			$this->logout($e);
+		}
+		
+		// if not allowed to the module,
+		// but it's a certified user
+		// take it back to where belongs
+		if( ! $this->access())
+		{
+			header('location: ' . \iframework\Router::$SITEROOT . '/' . $_SESSION['default']);
+			exit();
+		}
+		
+		return;
 	}
 
 	/**
-	 *
-	 * @param string $fail        	
+	 * @return void
 	 */
-	public function init()
+	private function init()
 	{
+		// Clean session
+		// this will prevent some session hijack
+		$this->end();
+		
+		$login = (string) $_POST['login'];
+		
 		// GET SALT FROM DB
-		$salt = array( 
-			'login' => (string) $_POST['login'] 
-		);
+		$salt = $this->model->find('login = ?', [ $login ]);
 		
 		// GET USER CREDENTIALS
-		$usr = array(
-			'login' => (string) $_POST['login'],
-			'pass' => hash("whirlpool", (string) $_POST['pass'] . $salt)
-		);
+		$usr = $this->model->find('login = ? AND pass = ?', [ $login, hash("whirlpool", (string) $_POST['pass'] . $salt->_salt) ]);
 		
 		// IF USER CREDENTIALS
 		// here we set the session vars and set Micro Session
-		if (isset($usr[0]))
+		if (isset($usr->login))
 		{
-			$this->populate($usr[0], array(
+			$this->populate($usr);
+			/*, array(
 				'fname',
 				'lname1'
-			));
+			));*/
 
 			// Save cookies
 			$this->send();
-
+			
 			// If default hook on profile
 			if(!empty(explode('/', $_SESSION['default'])[1]))
 			{
 				header('location: '. self::$SITEROOT . $_SESSION['default']);
 				exit();
 			}
-
-			return $this->modules($usr[0]);
 		}
-		else
-		{
-			$this->end();
-			return false;
-		}
+		
+		return;
 	}
 
 	/**
@@ -113,6 +119,7 @@ class Session
 	public function send()
 	{
 		\iframework\lib\Micro\Session::save();
+		return;
 	}
 
 	/**
@@ -123,6 +130,7 @@ class Session
 		\iframework\lib\Micro\Session::destroy();
 		unset($_COOKIE['PHPSESSID']);
 		setcookie("PHPSESSID", "", time() - 3600, "/");
+		return;
 	}
 
 	/**
@@ -145,6 +153,7 @@ class Session
 		
 		// Save cookies
 		$this->send();
+		return;
 	}
 	
 	/**
@@ -180,19 +189,21 @@ class Session
 	 * @param array $usr_data
 	 * @param string $token
 	 */
-	public function populate($usr, array $usr_data, $token = NULL)
+	private function populate($usr, array $usr_data = array(), $token = NULL)
 	{
 		$token = ! is_null($token) ? $token : (string) $_POST['token'];
 		
 		$_SESSION['token'] = $token;
-		$_SESSION['id'] = $usr->id_usr;
-		$_SESSION['profile'] = $usr->profile->profile;
-		$_SESSION['default'] = $usr->profile->access()[0]->module->module_slug.'/'.$usr->profile->default_hook;
+		$_SESSION['id'] = $usr->id;
+		$_SESSION['profile'] = $usr->role->name;
+		$_SESSION['default'] = $usr->role->sharedModuleList[1]->slug . '/';// . $usr->role->default_hook;
 
 		foreach ($usr_data as $data)
 		{
-			$_SESSION[$data] = $usr->level_one_data->$data;
+			$_SESSION[$data] = $usr->usr_ext->$data;
 		}
+		
+		return;
 	}
 
 	/**
@@ -203,12 +214,11 @@ class Session
 	 * @param Object $usr
 	 * @return boolean
 	 */
-	public function module($m)
+	public function access()
 	{
-		foreach ($m as $access)
+		foreach ($this->modules as $access)
 		{
-			// $access->module->id_module;
-			if ($access->module->slug == \iframework\Router::$router)
+			if ($access->slug == \iframework\Router::route())
 			{
 				return true;
 			}
@@ -224,13 +234,18 @@ class Session
 	 */
 	public function modules($usr = NULL)
 	{
-		if(is_null($usr))
+		if( !isset($_SESSION['id']))
+			throw new \Exception('No active session.');
+		
+		if( !!! $usr)
 		{
-			$usr = \iframework\models\User::fetch(array('id_usr' => $_SESSION['id']))[0];
+			$usr = $this->model->load([ $_SESSION['id'] ], 'load');
 		}
-		return $usr->profile->access();
+		
+		$this->modules = $usr->role->sharedModuleList;
+		return;
 	}
-	
+
 	/**
 	 *
 	 * @param Object $usr
@@ -263,14 +278,14 @@ class Session
 	}*/
 
 	/**
-	 * Hook
+	 * Hook /?logout=true
 	 * 
 	 * @param string $return
 	 */
 	public function logout($return = NULL)
 	{
 		$return = is_null($return) ?  : '&return=' . $return;
-		$this->sess_end();
+		$this->end();
 		header('location: ' . \iframework\Router::$SITEROOT);
 	}
 }
