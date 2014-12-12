@@ -92,19 +92,20 @@ class Template
 	/**
 	 * List of global data
 	 *
-	 * @param Object|View $section        	
+	 * @param Object|View $view       	
 	 */
-	protected function setGlobalVars($section)
+	protected function setGlobalVars($view)
 	{
 		$root = \iframework\Router::$SITEROOT . '/';
 		$template = \iframework\Router::$TEMPLATE;
 		
-		$section->assign('mainurl:global', $root );
-		$section->assign('currenturl:global', $root . \iframework\Router::script());
-		$section->assign('currenturlnoscript:global', $root . \iframework\Router::script(true));
-		$section->assign('templateurl:global', $root . \iframework\Router::$APP . '/views/' . $template );
-		$section->assign('templatename:global', $this->_template);
-		$section->assign('title:global', $template);
+		$view->assign('mainurl:global', $root );
+		$view->assign('currenturl:global', $root . \iframework\Router::script());
+		$view->assign('currenturlnoscript:global', $root . \iframework\Router::script(true));
+		$view->assign('templateurl:global', $root . \iframework\Router::$APP . '/views/' . $template );
+		$view->assign('templatename:global', $this->_template);
+		$view->assign('title:global', $template);
+		$view->assign('navigation:global', \iframework\Router::$navigation);
 	}
 
 	/**

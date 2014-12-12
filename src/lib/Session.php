@@ -15,6 +15,8 @@ class Session
 	public $model;
 	
 	private $modules = array();
+	
+	private static $nav_module = '';
 
 	public function __construct($model)
 	{
@@ -247,35 +249,31 @@ class Session
 	}
 
 	/**
-	 *
-	 * @param Object $usr
-	 
-	public function setNavModule($usr = NULL)
+	 * 
+	 * @return string
+	 */
+	public function navigation()
 	{
-		$this->nav_module = "\t<ul>\n";
-	
-		// Modules can't be overriden or extended
-		// this will depend on a well stablishd DB
-		// If using DB mode framework
-		if(\iframework\Router::$LOGIN)
-		{
-		$this->setNavModule();
-		$this->view->assign('nav_module:global', $this->nav_module);
-		}
-	
-		$modules = $this->getModules($usr);
-	
+		if(self::$nav_module != '')
+			return self::$nav_module; 
+		
+		self::$nav_module = "\t<ul>\n";
+
+		$modules = $this->modules();
+
 		foreach($modules as $access)
 		{
-		$href = \iframework\Router::$SITEROOT . $access->module->slug;
-		$this->nav_module .= "\t<li><a href='{$href}'>{$access->module->name}</a></li>\n";
+			$href = \iframework\Router::$SITEROOT . $access->module->slug;
+			self::$nav_module .= "\t<li><a href='{$href}'>{$access->module->name}</a></li>\n";
 		}
-	
+
 		$current = \iframework\Router::$SITEROOT . \iframework\Router::script(true);
-		$this->nav_module .= "\t<li><a href='{$current}/logout'>Cerrar Sessión</a></li></li>\n";
-	
-		$this->nav_module .= "\t</ul>\n";
-	}*/
+		
+		self::$nav_module .= "\t<li><a href='{$current}/logout'>Cerrar Sessión</a></li></li>\n";
+		self::$nav_module .= "\t</ul>\n";
+
+		return self::$nav_module;
+	}
 
 	/**
 	 * Hook /?logout=true

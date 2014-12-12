@@ -54,6 +54,8 @@ class Router
 	
 	private static $GET = array();
 	
+	private static $navigation = '';
+	
 	/**
 	 *
 	 * @param unknown $login        	
