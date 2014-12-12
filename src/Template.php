@@ -96,7 +96,7 @@ class Template
 	 */
 	protected function setGlobalVars($section)
 	{
-		$root = \iframework\Router::$SITEROOT;
+		$root = \iframework\Router::$SITEROOT . '/';
 		$template = \iframework\Router::$TEMPLATE;
 		
 		$section->assign('mainurl:global', $root );
@@ -199,7 +199,7 @@ class Template
 	public function setCSS()
 	{
 		$root = \iframework\Router::$SRVRROOT;
-		$site = \iframework\Router::$SITEROOT; 
+		$site = \iframework\Router::$SITEROOT . '/'; 
 		$app = \iframework\Router::$APP;
 		$template = \iframework\Router::$TEMPLATE;
 		
@@ -208,10 +208,10 @@ class Template
 		
 		foreach($args as $css)
 		{
-			if(file_exists($root . '/' . $app . '/views/' . $template . '/public/css/' . strtolower($css) . '.css'))
+			if(file_exists($root . '/' . $app . '/view/' . $template . '/public/css/' . strtolower($css) . '.css'))
 			{
 				$print = strtolower($css) == 'print' ? 'media="print"': '';
-				$css = $site . $app . '/views/' . $template . '/public/css/' . strtolower($css) . '.css';
+				$css = $site . $app . '/view/' . $template . '/public/css/' . strtolower($css) . '.css';
 				$this->css .= "\t<link rel='stylesheet' type='text/css' href='{$css}' {$print} />\n";
 			}	
 		}
@@ -226,7 +226,7 @@ class Template
 	public function setJS()
 	{
 		$root = \iframework\Router::$SRVRROOT;
-		$site = \iframework\Router::$SITEROOT;
+		$site = \iframework\Router::$SITEROOT . '/';
 		$app = \iframework\Router::$APP;
 		$template = \iframework\Router::$TEMPLATE;
 		
@@ -234,9 +234,9 @@ class Template
 		$args = func_get_args();
 		foreach($args as $js)
 		{
-			if(file_exists($root . '/' . $app . '/views/' . $template . '/public/js/' . strtolower($js) . '.js'))
+			if(file_exists($root . '/' . $app . '/view/' . $template . '/public/js/' . strtolower($js) . '.js'))
 			{
-				$js = $site . $app . '/views/' . $template . '/public/js/' . strtolower($js) . '.js';
+				$js = $site . $app . '/view/' . $template . '/public/js/' . strtolower($js) . '.js';
 				$this->js .= "\t<script type='text/javascript' src='{$js}'></script>\n";
 			}
 		}
