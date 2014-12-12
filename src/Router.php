@@ -45,6 +45,8 @@ class Router
 	public static $SESSION = NULL;
 	
 	public static $config = array();
+	
+	public static $navigation = '';
 
 	private static $router = array();
 	
@@ -53,8 +55,6 @@ class Router
 	private static $hook = '';
 	
 	private static $GET = array();
-	
-	private static $navigation = '';
 	
 	/**
 	 *

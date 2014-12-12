@@ -16,7 +16,7 @@ class Session
 	
 	private $modules = array();
 	
-	private static $nav_module = '';
+	private $nav_module = '';
 
 	public function __construct($model)
 	{
@@ -233,6 +233,8 @@ class Session
 	 * Get all modules of given user or session user
 	 * 
 	 * @param Object $usr
+	 * 
+	 * @return void
 	 */
 	public function modules($usr = NULL)
 	{
@@ -240,9 +242,7 @@ class Session
 			throw new \Exception('No active session.');
 		
 		if( !!! $usr)
-		{
 			$usr = $this->model->load([ $_SESSION['id'] ], 'load');
-		}
 		
 		$this->modules = $usr->role->sharedModuleList;
 		return;
@@ -254,25 +254,25 @@ class Session
 	 */
 	public function navigation()
 	{
-		if(self::$nav_module != '')
-			return self::$nav_module; 
+		if( !isset($_SESSION['id']) ) 
+			return $this->nav_module;
 		
-		self::$nav_module = "\t<ul>\n";
+		$this->nav_module = "\t<ul>\n";
 
-		$modules = $this->modules();
-
-		foreach($modules as $access)
-		{
-			$href = \iframework\Router::$SITEROOT . $access->module->slug;
-			self::$nav_module .= "\t<li><a href='{$href}'>{$access->module->name}</a></li>\n";
-		}
-
+		$modules = $this->modules;
 		$current = \iframework\Router::$SITEROOT . \iframework\Router::script(true);
 		
-		self::$nav_module .= "\t<li><a href='{$current}/logout'>Cerrar Sessión</a></li></li>\n";
-		self::$nav_module .= "\t</ul>\n";
-
-		return self::$nav_module;
+		foreach($modules as $access)
+		{
+			$href = \iframework\Router::$SITEROOT . $access->slug;
+			$active = $href == $current ? "class='active'" : '';
+			$this->nav_module .= "\t<li><a {$active} href='{$href}'>{$access->name}</a></li>\n";
+		}
+		
+		$this->nav_module .= "\t<li><a href='{$current}/logout'>Cerrar Sessión</a></li></li>\n";
+		$this->nav_module .= "\t</ul>\n";
+		
+		return $this->nav_module;
 	}
 
 	/**

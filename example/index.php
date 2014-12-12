@@ -9,10 +9,11 @@ if( ! class_exists('Locale', false)) {
 setlocale(LC_ALL, 'es_ES.UTF-8');
 
 require 'vendor/autoload.php';
+require 'vendor/elpepe/iframework/src/lib/Micro/common.php';
 
 // Settings
 \iframework\Router::$SRVRROOT = __DIR__;
-\iframework\Router::$SITEROOT = array('localhost/example.com', '189.137.75.112/example.com', 'example.com', 'www.example.com');
+\iframework\Router::$SITEROOT = array('localhost/ICO/portal', '189.137.75.112/example.com', 'icosc.com.mx/portal', 'www.icosc.com.mx/portal');
 \iframework\Router::$SAFEAREA = 'portal';
 \iframework\Router::$DEBUG = TRUE;
 //\iframework\Router::$TEMPLATE = 'example'; 
@@ -26,9 +27,9 @@ require 'vendor/autoload.php';
 if($_SERVER['HTTP_HOST'] == 'localhost')
 {
 	\iframework\Router::$config['database'] = array(
-		'dns' => "mysql:host=127.0.0.1;port=3306;dbname=icodb",
-		'username' => 'ElPepe',
-		'password' => '%1a2s3d4f%G_'
+		'dns' => "mysql:host=127.0.0.1;port=3306;dbname=",
+		'username' => '',
+		'password' => ''
 	);
 }
 else
@@ -41,12 +42,9 @@ else
 }
 
 /**
- * Cookie Handling 
- *
+ * Cookie Handling
  * To insure your cookies are secure, please choose a long, random key!
- *
  * @link http://php.net/setcookie
- *      
  */
 \iframework\lib\Micro\Cookie::$settings = array(
 	'key' => '',
@@ -59,9 +57,18 @@ else
 );
 
 \iframework\Router::construct();
-$_ses = new \iframework\lib\Session();
+
+// This will create/reset the DB
+//$model = new Role();
+//\RedBeanPHP\Facade::nuke();
+//$model->reset();
 
 // Check login access to module
-$_ses->verify();
+$_sess = new \iframework\lib\Session(new User());
+$_sess->verify();
 
+// Set Nav
+\iframework\Router::$navigation = $_sess->navigation();
+
+// Start
 \iframework\Router::start();
