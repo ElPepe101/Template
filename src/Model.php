@@ -43,7 +43,7 @@ class Model //extends RedBean_SimpleModel
 	 * 
 	 * @param ! bool $create
 	 */
-	public function __construct( $create = 0 )
+	public function __construct()
 	{	
 		// Get the table name
 		$this->table = strtolower(get_called_class());
@@ -54,6 +54,15 @@ class Model //extends RedBean_SimpleModel
 			self::$chill[] = $this->table;
 		}
 		
+		return;
+	}
+	
+	/**
+	 * 
+	 * @param number $create
+	 */
+	public function start( $create = 0 )
+	{
 		// Start
 		$this->database();
 		

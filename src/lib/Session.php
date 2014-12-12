@@ -12,21 +12,21 @@ namespace iframework\lib;
 class Session
 {
 
-	public $model;
+	use \iframework\lib\Singleton;
 	
-	private $modules = array();
+	public static $model;
+	
+	private static $modules = array();
 	
 	private $nav_module = '';
 
-	public function __construct($model)
+	protected function construct()
 	{
 		if(isset($_GET['logout']) && $_GET['logout'])
 		{
 			$this->logout();
 			exit();
 		}
-		// Load database
-		$this->model = $model;
 	}
 	
 	/**
@@ -44,7 +44,7 @@ class Session
 		
 		// IF USER SENDS LOGIN DATA
 		if (isset($_POST['login'], $_POST['pass'], $_POST['token']))
-		$this->init();
+			$this->init();
 		
 		// IF SESSION EXISTS: ONLY CHECK MODULE ACCESS
 		elseif (\iframework\lib\Micro\Session::token((string) $_SESSION['token']))
@@ -86,10 +86,10 @@ class Session
 		$login = (string) $_POST['login'];
 		
 		// GET SALT FROM DB
-		$salt = $this->model->find('login = ?', [ $login ]);
+		$salt = self::$model->find('login = ?', [ $login ]);
 		
 		// GET USER CREDENTIALS
-		$usr = $this->model->find('login = ? AND pass = ?', [ $login, hash("whirlpool", (string) $_POST['pass'] . $salt->_salt) ]);
+		$usr = self::$model->find('login = ? AND pass = ?', [ $login, hash("whirlpool", (string) $_POST['pass'] . $salt->_salt) ]);
 		
 		// IF USER CREDENTIALS
 		// here we set the session vars and set Micro Session
@@ -218,7 +218,7 @@ class Session
 	 */
 	public function access()
 	{
-		foreach ($this->modules as $access)
+		foreach (self::$modules as $access)
 		{
 			if ($access->slug == \iframework\Router::route())
 			{
@@ -241,14 +241,26 @@ class Session
 		if( !isset($_SESSION['id']))
 			throw new \Exception('No active session.');
 		
-		if( !!! $usr)
-			$usr = $this->model->load([ $_SESSION['id'] ], 'load');
+		echo 'Modles ';
+		print_r(self::$modules);
 		
-		$this->modules = $usr->role->sharedModuleList;
+		// Cache for performance
+		if( !empty(self::$modules))
+		{
+			echo 'Cache Modules';
+			return;
+		}
+		
+		if( !!! $usr)
+			$usr = self::$model->load([ $_SESSION['id'] ], 'load');
+		
+		self::$modules = $usr->role->sharedModuleList;
 		return;
 	}
 
 	/**
+	 * 
+	 * 
 	 * 
 	 * @return string
 	 */
@@ -257,19 +269,17 @@ class Session
 		if( !isset($_SESSION['id']) ) 
 			return $this->nav_module;
 		
+		$current = \iframework\Router::$SITEROOT . '/' . \iframework\Router::script(true);
 		$this->nav_module = "\t<ul>\n";
-
-		$modules = $this->modules;
-		$current = \iframework\Router::$SITEROOT . \iframework\Router::script(true);
 		
-		foreach($modules as $access)
+		foreach(self::$modules as $access)
 		{
-			$href = \iframework\Router::$SITEROOT . $access->slug;
+			$href = \iframework\Router::$SITEROOT . '/' . $access->slug;
 			$active = $href == $current ? "class='active'" : '';
 			$this->nav_module .= "\t<li><a {$active} href='{$href}'>{$access->name}</a></li>\n";
 		}
 		
-		$this->nav_module .= "\t<li><a href='{$current}/logout'>Cerrar Sessión</a></li></li>\n";
+		$this->nav_module .= "\t<li><a href='{$current}/?logout=true'>Cerrar Sessión</a></li></li>\n";
 		$this->nav_module .= "\t</ul>\n";
 		
 		return $this->nav_module;
