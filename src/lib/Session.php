@@ -2,24 +2,58 @@
 
 namespace iframework\lib;
 
-/**
- * 
+/** 
  * @author ElPepe
  *
- * @todo Commenting and Documenting
+ * Session control library.
+ * Currently implementing RedBeanPHP Syntax.
+ * 
+ * For it's use, first you'll need a model "\iframework\lib\Session::$model = new User();",
+ * then you will call it's singleton "$_sess = \iframework\lib\Session::getInstance();",
+ * later you'll verify the session "$_sess->verify();".
+ * 
+ * This library is ment to use before any router
+ * 
+ * If you want to extract the navigation assigned to this model: "$_sess->navigation();" 
+ * 
+ * The minimun requirements for the model are:
+ * 
+ *  - USER ID: 				$_SESSION['id'] = $usr->id;
+ *	- PROFILE NAME:			$_SESSION['profile'] = $usr->role->name;
+ *	- FIRST MODULE SLUG: 	$_SESSION['default'] = $usr->role->sharedModuleList[1]->slug;
+ *  - ALLOWED MODULES:		$_SESSION['modules'] = $this->modules;
+ * 
+ * 
+ * @uses Singleton Trait: \iframework\traits\Singleton
  * 
  */
 class Session
 {
 
-	use \iframework\lib\Singleton;
+	use \iframework\traits\Singleton;
 	
+	/**
+	 * 
+	 * @var Model | RedBean Instance
+	 */
 	public static $model;
 	
-	private static $modules = array();
+	/**
+	 * 
+	 * @var RedBean Object
+	 */
+	private $modules;
 	
+	/**
+	 * 
+	 * @var string | HTML
+	 */
 	private $nav_module = '';
 
+	/**
+	 * 
+	 * Singleton construct
+	 */
 	protected function construct()
 	{
 		if(isset($_GET['logout']) && $_GET['logout'])
@@ -75,6 +109,9 @@ class Session
 	}
 
 	/**
+	 * This will start the sessions,
+	 * Warning: heavy use of DB conn.
+	 * 
 	 * @return void
 	 */
 	private function init()
@@ -84,6 +121,9 @@ class Session
 		$this->end();
 		
 		$login = (string) $_POST['login'];
+		
+		// Ready to use
+		self::$model->start();
 		
 		// GET SALT FROM DB
 		$salt = self::$model->find('login = ?', [ $login ]);
@@ -117,6 +157,7 @@ class Session
 
 	/**
 	 * Save user session to use on cookies
+	 * 
 	 */
 	public function send()
 	{
@@ -125,6 +166,7 @@ class Session
 	}
 
 	/**
+	 * End Session
 	 * 
 	 */
 	public function end()
@@ -136,6 +178,7 @@ class Session
 	}
 
 	/**
+	 * Refresh cookie token and session
 	 * 
 	 */
 	public function update()
@@ -159,7 +202,12 @@ class Session
 	}
 	
 	/**
+	 * This will setup the data array 
+	 * of the user for it's use.
 	 * 
+	 * Currently unused.
+	 * 
+	 * @todo remove or implement
 	 * @return Ambigous <string, NULL>|boolean
 	 */
 	public function user()
@@ -216,9 +264,9 @@ class Session
 	 * @param Object $usr
 	 * @return boolean
 	 */
-	public function access()
+	private function access()
 	{
-		foreach (self::$modules as $access)
+		foreach ($this->modules as $access)
 		{
 			if ($access->slug == \iframework\Router::route())
 			{
@@ -236,31 +284,32 @@ class Session
 	 * 
 	 * @return void
 	 */
-	public function modules($usr = NULL)
+	private function modules($usr = NULL)
 	{
 		if( !isset($_SESSION['id']))
 			throw new \Exception('No active session.');
 		
-		echo 'Modles ';
-		print_r(self::$modules);
-		
-		// Cache for performance
-		if( !empty(self::$modules))
-		{
-			echo 'Cache Modules';
+		// No need to change it
+		if( isset($_SESSION['modules']) && $_SESSION['modules'] == $this->modules)
 			return;
-		}
+		
+		// Ready to use
+		self::$model->start();
 		
 		if( !!! $usr)
 			$usr = self::$model->load([ $_SESSION['id'] ], 'load');
 		
-		self::$modules = $usr->role->sharedModuleList;
+		$this->modules = $usr->role->sharedModuleList;
+		
+		// Cache for performance
+		$_SESSION['modules'] = $this->modules;
+		
 		return;
 	}
 
 	/**
-	 * 
-	 * 
+	 * This will create an <ul> HTML element
+	 * based in the session modules.
 	 * 
 	 * @return string
 	 */
@@ -272,7 +321,7 @@ class Session
 		$current = \iframework\Router::$SITEROOT . '/' . \iframework\Router::script(true);
 		$this->nav_module = "\t<ul>\n";
 		
-		foreach(self::$modules as $access)
+		foreach($this->modules as $access)
 		{
 			$href = \iframework\Router::$SITEROOT . '/' . $access->slug;
 			$active = $href == $current ? "class='active'" : '';
@@ -288,6 +337,9 @@ class Session
 	/**
 	 * Hook /?logout=true
 	 * 
+	 * The param is for queue the next page to send instead the default.
+	 * 
+	 * @todo Implement $return var for redirection in router
 	 * @param string $return
 	 */
 	public function logout($return = NULL)
@@ -297,4 +349,3 @@ class Session
 		header('location: ' . \iframework\Router::$SITEROOT);
 	}
 }
-// End Trait
