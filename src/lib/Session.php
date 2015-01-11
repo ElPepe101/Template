@@ -328,7 +328,7 @@ class Session
 			$this->nav_module .= "\t<li><a {$active} href='{$href}'>{$access->name}</a></li>\n";
 		}
 		
-		$this->nav_module .= "\t<li><a href='{$current}/?logout=true'>Cerrar Sessión</a></li></li>\n";
+		$this->nav_module .= "\t<li><a href='{$current}/?logout=true'>Cerrar Sesión</a></li></li>\n";
 		$this->nav_module .= "\t</ul>\n";
 		
 		return $this->nav_module;
