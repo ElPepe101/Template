@@ -205,6 +205,9 @@ class Model //extends RedBean_SimpleModel
 	
 	/**
 	 * 
+	 * @todo: Simplify method for easy update, or maybe a new method?
+	 * 		  For now it will be nice to have it understand if is an array,
+	 * 		  an int or is null/empty, that way will reduce params to one. 
 	 */
 	public function load(array $ndx = array(), $mode = 'batch')
 	{
