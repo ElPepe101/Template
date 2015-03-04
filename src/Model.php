@@ -241,18 +241,19 @@ class Model //extends RedBean_SimpleModel
 	
 	/**
 	 * 
-	 * @param number $key
+	 * @param Boolean $is_array 
+	 * @return unknown
 	 */
-	public function store( $array = false )
+	public function store( $is_array = false )
 	{
 		// Store the table in DB
-		if($array)
-			\RedBeanPHP\Facade::storeAll($this->model);
+		if($is_array)
+			$id = \RedBeanPHP\Facade::storeAll($this->model);
 		
-		else 
-			\RedBeanPHP\Facade::store($this->model);
+		else
+			$id = \RedBeanPHP\Facade::store($this->model);
 		
-		return;
+		return $id;
 	}
 	
 	/**
