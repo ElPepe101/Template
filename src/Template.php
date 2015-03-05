@@ -98,13 +98,14 @@ class Template
 	{
 		$root = \iframework\Router::$SITEROOT . '/';
 		$template = \iframework\Router::$TEMPLATE;
+		$script = ucfirst(array_reverse(explode('/', \iframework\Router::script()))[0]);
 		
 		$view->assign('mainurl:global', $root );
 		$view->assign('currenturl:global', $root . \iframework\Router::script());
 		$view->assign('currenturlnoscript:global', $root . \iframework\Router::script(true));
 		$view->assign('templateurl:global', $root . \iframework\Router::$APP . '/view/' . $template );
 		$view->assign('templatename:global', $this->_template);
-		$view->assign('title:global', $template);
+		$view->assign('title:global', $script);
 		$view->assign('navigation:global', \iframework\Router::$navigation);
 	}
 
