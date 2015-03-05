@@ -245,4 +245,22 @@ class Template
 		return false;
 	}
 
+	/**
+	 *
+	 * Temporary solution for a really troublesome triviality :P
+	 *
+	 * @param String $variable
+	 * @param String $value
+	 */
+	public function assignGlobal($variable, $value)
+	{
+		$this->view->assign($variable.':global', $value);
+	
+		foreach($this->section as $section)
+			$section->inherit($this->view);
+	
+		$this->module->inherit($this->view);
+	
+		return;
+	}
 }
