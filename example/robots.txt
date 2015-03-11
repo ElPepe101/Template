@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /vendor/
+Disallow: /.settings/
+Disallow: /app/
+Allow: /app/view/default/public/
+Sitemap: http://localhost/sitemap.xml
